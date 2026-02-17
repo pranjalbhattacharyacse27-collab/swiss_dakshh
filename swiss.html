@@ -8,40 +8,20 @@
     <style>
         .qualified { @apply bg-emerald-900/40 border-emerald-500/50 text-emerald-100; }
         .eliminated { @apply bg-red-900/40 border-red-500/50 text-red-200 opacity-60; }
-        
-        /* Scrollbar styles for visualizers */
         .viz-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
         .viz-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.8); border-radius: 8px; }
         .viz-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; border: 2px solid rgba(15, 23, 42, 0.8); }
         .viz-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Playoffs bracket styles */
         .bracket-col { display: flex; flex-direction: column; justify-content: space-around; gap: 1rem; }
         .bracket-match { @apply bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm w-48 shadow-lg z-10 relative; }
         .bracket-team { @apply flex justify-between items-center py-1 px-2 rounded; }
         .bracket-team.winner { @apply font-bold text-emerald-400 bg-slate-700/50; }
-
-        /* Flow Lines for Swiss Stage */
-        @keyframes fadeInLine {
-            from { opacity: 0; }
-            to { opacity: 0.35; }
-        }
-        .flow-line-win {
-            stroke: #22c55e; stroke-width: 2.5; stroke-dasharray: 6 6;
-            animation: fadeInLine 0.5s ease-out forwards, flowWin 1s linear infinite;
-        }
-        .flow-line-loss {
-            stroke: #ef4444; stroke-width: 2.5; stroke-dasharray: 6 6;
-            animation: fadeInLine 0.5s ease-out forwards, flowLoss 1s linear infinite;
-        }
+        @keyframes fadeInLine { from { opacity: 0; } to { opacity: 0.35; } }
+        .flow-line-win { stroke: #22c55e; stroke-width: 2.5; stroke-dasharray: 6 6; animation: fadeInLine 0.5s ease-out forwards, flowWin 1s linear infinite; }
+        .flow-line-loss { stroke: #ef4444; stroke-width: 2.5; stroke-dasharray: 6 6; animation: fadeInLine 0.5s ease-out forwards, flowLoss 1s linear infinite; }
         @keyframes flowWin { to { stroke-dashoffset: -12; } }
         @keyframes flowLoss { to { stroke-dashoffset: -12; } }
-
-        /* Podium Animations */
-        @keyframes riseUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes riseUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .podium-step { animation: riseUp 0.8s ease-out forwards; }
     </style>
 </head>
@@ -54,42 +34,27 @@
                 DAKSHH <span class="text-emerald-500">VALORANT TOURNAMENT</span>
             </h1>
             <p class="text-slate-400 text-sm mt-2 font-medium">
-                Swiss & Playoffs Engine • 3W Qualify / 3L Eliminate
+                Swiss & Playoffs Engine • Map Veto System • 3W Qualify
             </p>
         </div>
         <div class="flex gap-3 items-center flex-wrap justify-end">
             <input type="file" id="loadInput" accept=".json" class="hidden" onchange="loadTournament(event)">
-            <button onclick="document.getElementById('loadInput').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition-all text-slate-300 shadow-md" title="Load Tournament from .json">
-                📂 Load
-            </button>
-            <button onclick="saveTournament()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition-all text-slate-300 shadow-md mr-4" title="Save Tournament to .json">
-                💾 Save
-            </button>
-
-            <button onclick="generateRandomTeams()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg text-sm font-bold transition-all text-blue-400">
-                + Add 16 Teams
-            </button>
-            <button onclick="autoResolveMatches()" class="bg-purple-900/40 hover:bg-purple-800 border border-purple-600 px-4 py-2 rounded-lg text-sm font-bold transition-all text-purple-300 shadow-[0_0_15px_rgba(147,51,234,0.3)]">
-                ⚡ Auto-Resolve Phase
-            </button>
-            <button id="mainActionBtn" onclick="advanceTournament()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] active:scale-95 text-white">
-                START SWISS STAGE
-            </button>
+            <button type="button" onclick="document.getElementById('loadInput').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition-all text-slate-300 shadow-md">📂 Load</button>
+            <button type="button" onclick="saveTournament()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition-all text-slate-300 shadow-md mr-4">💾 Save</button>
+            <button type="button" onclick="generateRandomTeams()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg text-sm font-bold transition-all text-blue-400">+ Add 16 Teams</button>
+            <button type="button" onclick="autoResolveMatches()" class="bg-purple-900/40 hover:bg-purple-800 border border-purple-600 px-4 py-2 rounded-lg text-sm font-bold transition-all text-purple-300 shadow-[0_0_15px_rgba(147,51,234,0.3)]">⚡ Auto-Resolve</button>
+            <button type="button" id="mainActionBtn" onclick="advanceTournament()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] active:scale-95 text-white">START SWISS STAGE</button>
         </div>
     </header>
 
     <section class="bg-[#0b0f19] p-2 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-red-900/10 via-transparent to-green-900/10 pointer-events-none"></div>
-        
         <div class="flex justify-between items-center px-6 py-4 relative z-20">
             <h2 class="text-lg font-black text-slate-200 uppercase tracking-widest flex items-center gap-3">
                 DAKSHH 2026 
-                <span id="vizPhaseTag" class="text-emerald-400 bg-emerald-900/30 border border-emerald-500/30 px-3 py-1 rounded-full text-xs shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                    SWISS STAGE
-                </span>
+                <span id="vizPhaseTag" class="text-emerald-400 bg-emerald-900/30 border border-emerald-500/30 px-3 py-1 rounded-full text-xs shadow-[0_0_10px_rgba(16,185,129,0.2)]">SWISS STAGE</span>
             </h2>
         </div>
-        
         <div id="visualizerContainer" class="viz-scroll overflow-x-auto overflow-y-auto pb-8 pt-2 flex gap-8 items-stretch min-h-[500px] relative z-10 w-full">
             <div class="m-auto text-slate-600 italic font-medium">Add 16 teams and start the tournament to view the bracket.</div>
         </div>
@@ -101,10 +66,9 @@
                 <div class="flex gap-2">
                     <input id="tName" type="text" placeholder="Team Name" class="flex-[2] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-emerald-500 text-sm font-medium">
                     <input id="tBias" type="number" placeholder="Seed" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none w-20 text-sm">
-                    <button onclick="addTeam()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold text-sm">Add</button>
+                    <button type="button" onclick="addTeam()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold text-sm">Add</button>
                 </div>
             </section>
-
             <section class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
                 <div class="p-3 bg-slate-800/80 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 flex justify-between">
                     <span>Rank & Team</span>
@@ -121,35 +85,91 @@
                     <h2 id="roundDisplay" class="text-2xl font-black mt-1">Setup Phase</h2>
                 </div>
             </div>
-
             <div id="matchGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full p-12 text-center border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-slate-500">
-                    Awaiting Teams
-                </div>
+                <div class="col-span-full p-12 text-center border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-slate-500">Awaiting Teams</div>
             </div>
         </div>
     </div>
 </div>
 
+<div id="vetoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden transform transition-all">
+        <div class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center">
+            <h3 class="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+                Map Veto System <span class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 text-[10px] px-2 py-0.5 rounded shadow-[0_0_10px_rgba(16,185,129,0.3)]">LIVE</span>
+            </h3>
+            <button type="button" onclick="closeVetoModal()" class="text-slate-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="p-6 bg-[#0b0f19] flex flex-col gap-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4 text-2xl font-black uppercase">
+                    <span id="vetoTeam1" class="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]">Team A</span>
+                    <span class="text-slate-600 text-sm">VS</span>
+                    <span id="vetoTeam2" class="text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.5)]">Team B</span>
+                </div>
+                <div class="flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                    <button type="button" id="btnBo1" onclick="setVetoFormat('bo1')" class="px-5 py-1.5 rounded font-bold text-sm transition-all">BO1</button>
+                    <button type="button" id="btnBo3" onclick="setVetoFormat('bo3')" class="px-5 py-1.5 rounded font-bold text-sm transition-all">BO3</button>
+                </div>
+            </div>
+            
+            <div id="vetoStatus" class="text-center text-xl bg-slate-800/80 py-3 rounded-lg border border-slate-700 shadow-inner font-black uppercase tracking-widest">
+            </div>
+
+            <div id="vetoMapsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            </div>
+        </div>
+
+        <div class="bg-slate-800 p-4 border-t border-slate-700 flex justify-between items-center">
+            <button type="button" onclick="resetVeto()" class="text-red-400 hover:text-red-300 font-bold text-sm flex items-center gap-1 bg-red-900/20 px-4 py-2 rounded border border-red-500/30 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Reset Veto
+            </button>
+            <button type="button" onclick="closeVetoModal()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-2.5 rounded-lg text-white font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                Close & Return
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // --- STATE ---
     let phase = 'swiss'; 
     let teams = [];
     let matches = [];
     let currentRound = 0;
     let playoffMatches = { qf: [], sf: [], final: null, third: null };
 
+    const VALORANT_MAPS = ["Abyss", "Bind", "Breeze", "Corrode", "Haven", "Pearl", "Split"];
+    let activeVetoMatchId = null;
+
+    const VETO_STEPS = {
+        'bo1': [
+            { action: 'ban', by: 't1' }, { action: 'ban', by: 't2' },
+            { action: 'ban', by: 't1' }, { action: 'ban', by: 't2' },
+            { action: 'ban', by: 't1' }, { action: 'ban', by: 't2' },
+            { action: 'decider', by: 'auto' }
+        ],
+        'bo3': [
+            { action: 'ban', by: 't1' }, { action: 'ban', by: 't2' },
+            { action: 'pick', by: 't1' }, { action: 'pick', by: 't2' },
+            { action: 'ban', by: 't1' }, { action: 'ban', by: 't2' },
+            { action: 'decider', by: 'auto' }
+        ]
+    };
+
     const TEAMS_TO_QUALIFY = 3;
     const TEAMS_TO_ELIMINATE = 3;
 
-    // --- SAVE & LOAD SYSTEM ---
     function saveTournament() {
-        if (teams.length === 0) return alert("Nothing to save yet!");
+        if (teams.length === 0) return alert("Nothing to save");
+        preserveInputs();
         const state = { phase, teams, matches, currentRound, playoffMatches };
-        const dataStr = JSON.stringify(state, null, 2); // Beautifully format the JSON
+        const dataStr = JSON.stringify(state, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        
         const a = document.createElement("a");
         a.href = url;
         a.download = `dakshh_tournament_R${currentRound}.json`;
@@ -162,7 +182,6 @@
     function loadTournament(event) {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -172,29 +191,19 @@
                 matches = state.matches || [];
                 currentRound = state.currentRound || 0;
                 playoffMatches = state.playoffMatches || { qf: [], sf: [], final: null, third: null };
-                
-                // If loaded during playoffs, hide entry section
                 if (phase === 'playoffs') document.getElementById('entrySection').style.display = 'none';
-                
                 render();
-            } catch (err) {
-                alert("Error loading save file. Ensure it is a valid tournament .json file.");
-            }
+            } catch (err) { alert("Error loading file"); }
         };
         reader.readAsText(file);
-        event.target.value = ""; // Reset input so same file can be loaded again
+        event.target.value = ""; 
     }
 
-    // --- SETUP & UTILS ---
     function generateRandomTeams() {
-        if(teams.length > 0) return alert("Refresh the page to clear teams before adding randoms.");
+        if(teams.length > 0) return alert("Refresh first");
         const proTeams = ["Sentinels", "Paper Rex", "FNATIC", "LOUD", "Team Heretics", "Karmine Corp", "NRG", "Leviatán", "Gen.G", "DRX", "ZETA DIVISION", "Cloud9", "100 Thieves", "T1", "Bleed Esports", "Bilibili Gaming"];
-        
         proTeams.forEach((name, i) => {
-            teams.push({
-                id: 'T' + i, name: name, initialSeed: 1600 - (i * 10),
-                wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, mapDiff: 0, buchholz: 0, history: [], status: 'active'
-            });
+            teams.push({ id: 'T' + i, name: name, initialSeed: 1600 - (i * 10), wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, mapDiff: 0, buchholz: 0, history: [], status: 'active' });
         });
         render();
     }
@@ -203,10 +212,7 @@
         const n = document.getElementById('tName').value.trim();
         const b = parseInt(document.getElementById('tBias').value);
         if (!n || isNaN(b)) return;
-        teams.push({
-            id: Date.now().toString(), name: n, initialSeed: b,
-            wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, mapDiff: 0, buchholz: 0, history: [], status: 'active'
-        });
+        teams.push({ id: 'T_' + Date.now().toString(), name: n, initialSeed: b, wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, mapDiff: 0, buchholz: 0, history: [], status: 'active' });
         document.getElementById('tName').value = ""; document.getElementById('tBias').value = "";
         render();
     }
@@ -232,8 +238,115 @@
         });
     }
 
-    // --- TOURNAMENT FLOW ---
+    function getMatchById(id) {
+        let m = matches.find(x => x.id === id);
+        if (m) return m;
+        const allP = [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third];
+        return allP.find(x => x && x.id === id);
+    }
+
+    function preserveInputs() {
+        const active = phase === 'swiss' ? matches : [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third];
+        active.forEach(m => {
+            if (m && !m.winnerId) {
+                const s1El = document.getElementById(`s1_${m.id}`);
+                const s2El = document.getElementById(`s2_${m.id}`);
+                if (s1El) m.tempS1 = s1El.value;
+                if (s2El) m.tempS2 = s2El.value;
+            }
+        });
+    }
+
+    function openVetoModal(matchId) {
+        preserveInputs();
+        activeVetoMatchId = matchId;
+        const match = getMatchById(matchId);
+        if (!match.veto) {
+            let defFormat = 'bo1';
+            if (phase === 'playoffs' || (match.pool && match.pool.includes('2'))) defFormat = 'bo3'; 
+            match.veto = { format: defFormat, history: [] };
+        }
+        document.getElementById('vetoModal').classList.remove('hidden');
+        renderVetoModal();
+    }
+
+    function closeVetoModal() {
+        document.getElementById('vetoModal').classList.add('hidden');
+        activeVetoMatchId = null;
+        renderMatches();
+    }
+
+    function setVetoFormat(fmt) {
+        const match = getMatchById(activeVetoMatchId);
+        match.veto.format = fmt;
+        match.veto.history = [];
+        renderVetoModal();
+    }
+
+    function resetVeto() {
+        getMatchById(activeVetoMatchId).veto.history = [];
+        renderVetoModal();
+    }
+
+    function handleMapClick(e, mapName) {
+        e.stopPropagation();
+        const match = getMatchById(activeVetoMatchId);
+        const v = match.veto;
+        if (v.history.some(h => h.map === mapName)) return; 
+        const step = VETO_STEPS[v.format][v.history.length];
+        if (!step || step.action === 'decider') return; 
+        v.history.push({ map: mapName, action: step.action, by: step.by === 't1' ? match.t1.id : match.t2.id });
+        if (v.history.length === 6) {
+            const remainingMap = VALORANT_MAPS.find(m => !v.history.some(h => h.map === m));
+            v.history.push({ map: remainingMap, action: 'decider', by: 'auto' });
+        }
+        renderVetoModal();
+    }
+
+    function renderVetoModal() {
+        const match = getMatchById(activeVetoMatchId);
+        const v = match.veto;
+        document.getElementById('vetoTeam1').innerText = match.t1.name;
+        document.getElementById('vetoTeam2').innerText = match.t2.name;
+        const bo1Btn = document.getElementById('btnBo1');
+        const bo3Btn = document.getElementById('btnBo3');
+        bo1Btn.className = v.format === 'bo1' ? 'px-5 py-1.5 bg-blue-600 rounded text-white font-black text-sm shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-5 py-1.5 hover:bg-slate-700 rounded text-slate-400 font-bold text-sm';
+        bo3Btn.className = v.format === 'bo3' ? 'px-5 py-1.5 bg-blue-600 rounded text-white font-black text-sm shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-5 py-1.5 hover:bg-slate-700 rounded text-slate-400 font-bold text-sm';
+        
+        const statusEl = document.getElementById('vetoStatus');
+        if (v.history.length < 7) {
+            const step = VETO_STEPS[v.format][v.history.length];
+            const tName = step.by === 't1' ? `<span class="text-blue-400">${match.t1.name}</span>` : `<span class="text-red-400">${match.t2.name}</span>`;
+            if (step.action === 'ban') statusEl.innerHTML = `${tName} <span class="text-slate-400 font-medium ml-2">BAN MAP</span>`;
+            else if (step.action === 'pick') statusEl.innerHTML = `${tName} <span class="text-slate-400 font-medium ml-2">PICK MAP</span>`;
+        } else {
+            statusEl.innerHTML = `<span class="text-emerald-400 drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">VETO COMPLETE</span>`;
+        }
+        
+        document.getElementById('vetoMapsGrid').innerHTML = VALORANT_MAPS.map(map => {
+            const hItem = v.history.find(h => h.map === map);
+            let bClass = "h-28 flex items-center justify-center rounded-xl border-2 font-black text-xl uppercase tracking-widest transition-all relative overflow-hidden ";
+            let overlay = "";
+            if (!hItem) {
+                bClass += "border-slate-700 bg-slate-800 text-slate-300 hover:border-blue-500 hover:bg-slate-700 hover:scale-[1.02] cursor-pointer shadow-lg";
+            } else if (hItem.action === 'ban') {
+                const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
+                bClass += "border-red-600/50 bg-red-900/20 text-red-500 opacity-60 cursor-not-allowed";
+                overlay = `<div class="absolute inset-0 flex items-center justify-center"><div class="w-[120%] h-1 bg-red-600 rotate-[20deg] opacity-70"></div></div><div class="absolute bottom-1 bg-red-900/80 px-2 rounded text-[10px] text-red-300 border border-red-500/50">BANNED: ${bName}</div>`;
+            } else if (hItem.action === 'pick') {
+                const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
+                bClass += "border-emerald-500 bg-emerald-900/40 text-emerald-400 cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.3)]";
+                overlay = `<div class="absolute bottom-1 bg-emerald-900/80 px-2 rounded text-[10px] text-emerald-300 border border-emerald-500/50">PICKED: ${bName}</div>`;
+            } else if (hItem.action === 'decider') {
+                bClass += "border-yellow-500 bg-yellow-900/40 text-yellow-400 cursor-not-allowed shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02]";
+                overlay = `<div class="absolute bottom-1 bg-yellow-900/80 px-2 rounded text-[10px] text-yellow-300 border border-yellow-500/50 tracking-widest">DECIDER</div>`;
+            }
+            return `<div onclick="handleMapClick(event, '${map}')" class="${bClass}"><span class="z-10 drop-shadow-md">${map}</span>${overlay}</div>`;
+        }).join('');
+    }
+
     function advanceTournament() {
+        preserveInputs();
         if (phase === 'swiss') {
             const activeTeams = teams.filter(t => t.status === 'active');
             if (activeTeams.length === 0 && teams.length > 0) {
@@ -241,36 +354,27 @@
                 else alert("Error: Tournament complete but qualified teams does not equal 8.");
                 return;
             }
-            if (matches.some(m => !m.winnerId)) return alert("Please submit scores for all current matches.");
-            if (activeTeams.length % 2 !== 0) return alert(`Need an even number of active teams. Currently ${activeTeams.length}.`);
-            
+            if (matches.some(m => !m.winnerId)) return alert("Submit scores for all current matches.");
+            if (activeTeams.length % 2 !== 0) return alert("Need an even number of active teams.");
             currentRound++;
             generateSwissPairings(activeTeams);
-        } else {
-            checkPlayoffProgress();
-        }
+        } else { checkPlayoffProgress(); }
     }
 
     function generateSwissPairings(activeTeams) {
         const sortedActive = getSortedTeams().filter(t => t.status === 'active');
         const newPairings = [];
         const pairedIds = new Set();
-
         for (let i = 0; i < sortedActive.length; i++) {
             if (pairedIds.has(sortedActive[i].id)) continue;
             const teamA = sortedActive[i];
-            
             let opponent = sortedActive.find(t => !pairedIds.has(t.id) && t.id !== teamA.id && !teamA.history.includes(t.id) && t.wins === teamA.wins && t.losses === teamA.losses);
             if (!opponent) opponent = sortedActive.find(t => !pairedIds.has(t.id) && t.id !== teamA.id && !teamA.history.includes(t.id));
             if (!opponent) opponent = sortedActive.find(t => !pairedIds.has(t.id) && t.id !== teamA.id); 
-
             if (opponent) {
                 newPairings.push({
-                    id: Date.now() + Math.random().toString(), t1: teamA, t2: opponent,
-                    winnerId: null, scoreT1: 0, scoreT2: 0, 
-                    type: 'swiss',
-                    pool: `${teamA.wins}-${teamA.losses}`,
-                    label: `Swiss Round ${currentRound}`
+                    id: 'match_' + Date.now() + '_' + Math.floor(Math.random() * 10000), 
+                    t1: teamA, t2: opponent, winnerId: null, scoreT1: 0, scoreT2: 0, type: 'swiss', pool: `${teamA.wins}-${teamA.losses}`, label: `Swiss Round ${currentRound}`
                 });
                 pairedIds.add(teamA.id); pairedIds.add(opponent.id);
             }
@@ -282,95 +386,90 @@
     function startPlayoffs() {
         phase = 'playoffs';
         const qTeams = getSortedTeams().filter(t => t.status === 'qualified');
-        
-        playoffMatches.qf = [
-            createPlayoffMatch(qTeams[0], qTeams[7], 'Quarterfinal 1'),
-            createPlayoffMatch(qTeams[3], qTeams[4], 'Quarterfinal 2'),
-            createPlayoffMatch(qTeams[1], qTeams[6], 'Quarterfinal 3'),
-            createPlayoffMatch(qTeams[2], qTeams[5], 'Quarterfinal 4')
-        ];
+        playoffMatches.qf = [createPlayoffMatch(qTeams[0], qTeams[7], 'Quarterfinal 1'), createPlayoffMatch(qTeams[3], qTeams[4], 'Quarterfinal 2'), createPlayoffMatch(qTeams[1], qTeams[6], 'Quarterfinal 3'), createPlayoffMatch(qTeams[2], qTeams[5], 'Quarterfinal 4')];
         document.getElementById('entrySection').style.display = 'none';
         render();
     }
 
-    function createPlayoffMatch(t1, t2, label) {
-        return { id: 'p_' + Date.now() + Math.random(), t1, t2, winnerId: null, scoreT1: 0, scoreT2: 0, label, type: 'playoff' };
-    }
+    function createPlayoffMatch(t1, t2, label) { return { id: 'p_' + Date.now() + '_' + Math.floor(Math.random() * 10000), t1, t2, winnerId: null, scoreT1: 0, scoreT2: 0, label, type: 'playoff' }; }
 
     function checkPlayoffProgress() {
         const qfDone = playoffMatches.qf.every(m => m.winnerId);
         const sfDone = playoffMatches.sf.every(m => m.winnerId);
-        
         if (qfDone && playoffMatches.sf.length === 0) {
             const w = playoffMatches.qf.map(m => teams.find(t => t.id === m.winnerId));
             playoffMatches.sf = [createPlayoffMatch(w[0], w[1], 'Semifinal 1'), createPlayoffMatch(w[2], w[3], 'Semifinal 2')];
         } 
         else if (sfDone && !playoffMatches.final) {
             const m1 = playoffMatches.sf[0], m2 = playoffMatches.sf[1];
-            const f1 = teams.find(t => t.id === m1.winnerId);
-            const f2 = teams.find(t => t.id === m2.winnerId);
-            const l1 = teams.find(t => t.id === (m1.winnerId === m1.t1.id ? m1.t2.id : m1.t1.id));
-            const l2 = teams.find(t => t.id === (m2.winnerId === m2.t1.id ? m2.t2.id : m2.t1.id));
+            const f1 = teams.find(t => t.id === m1.winnerId), f2 = teams.find(t => t.id === m2.winnerId);
+            const l1 = teams.find(t => t.id === (m1.winnerId === m1.t1.id ? m1.t2.id : m1.t1.id)), l2 = teams.find(t => t.id === (m2.winnerId === m2.t1.id ? m2.t2.id : m2.t1.id));
             playoffMatches.final = createPlayoffMatch(f1, f2, 'Grand Final');
             playoffMatches.third = createPlayoffMatch(l1, l2, '3rd Place Match');
-        } else {
-            alert("Finish current playoff matches first.");
-        }
+        } else { alert("Finish current playoff matches first."); }
         render();
     }
 
-    function processMatchResult(matchId, s1, s2) {
-        let match = phase === 'swiss' ? matches.find(m => m.id === matchId) : 
-            [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third].find(m => m && m.id === matchId);
+    function processMatchResult(matchId, s1, s2, skipRender = false) {
+        let match = getMatchById(matchId);
         if (!match || match.winnerId) return;
-
         const wId = s1 > s2 ? match.t1.id : match.t2.id;
         const lId = s1 > s2 ? match.t2.id : match.t1.id;
-        
         match.winnerId = wId; match.scoreT1 = s1; match.scoreT2 = s2;
-
         if (phase === 'swiss') {
-            const w = teams.find(t => t.id === wId), l = teams.find(t => t.id === lId);
+            const w = teams.find(t => t.id === wId);
+            const l = teams.find(t => t.id === lId);
             w.wins++; l.losses++;
             w.history.push(lId); l.history.push(wId);
-            
             if (wId === match.t1.id) { w.mapsWon+=s1; w.mapsLost+=s2; l.mapsWon+=s2; l.mapsLost+=s1; } 
             else { w.mapsWon+=s2; w.mapsLost+=s1; l.mapsWon+=s1; l.mapsLost+=s2; }
-
             if (w.wins === TEAMS_TO_QUALIFY) w.status = 'qualified';
             if (l.losses === TEAMS_TO_ELIMINATE) l.status = 'eliminated';
         }
-        render();
+        if (!skipRender) render();
     }
 
     function submitScoreUI(mId) {
-        const s1 = parseInt(document.getElementById(`s1_${mId}`).value);
-        const s2 = parseInt(document.getElementById(`s2_${mId}`).value);
+        preserveInputs();
+        const s1El = document.getElementById(`s1_${mId}`);
+        const s2El = document.getElementById(`s2_${mId}`);
+        if (!s1El || !s2El) return;
+        const s1 = parseInt(s1El.value);
+        const s2 = parseInt(s2El.value);
         if (isNaN(s1) || isNaN(s2) || s1 === s2) return alert("Invalid scores. Must be numeric and not a tie.");
         processMatchResult(mId, s1, s2);
     }
 
     function autoResolveMatches() {
-        let active = phase === 'swiss' ? matches.filter(m => !m.winnerId) : 
-            [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third].filter(m => m && !m.winnerId);
+        preserveInputs();
+        let active = phase === 'swiss' ? matches.filter(m => !m.winnerId) : [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third].filter(m => m && !m.winnerId);
         if (active.length === 0) return alert("Advance bracket or start the round first.");
         
         active.forEach(m => {
             let isBo3 = false;
             if (phase === 'playoffs') isBo3 = true;
             else if (m.pool && (m.pool.includes('2'))) isBo3 = true;
-
-            const s1 = isBo3 ? (Math.random()>0.5?2:Math.floor(Math.random()*2)) : (Math.random()>0.5?13:Math.floor(Math.random()*12));
-            const s2 = isBo3 ? (s1===2?Math.floor(Math.random()*2):2) : (s1===13?Math.floor(Math.random()*12):13);
-            processMatchResult(m.id, s1, s2);
+            
+            if (!m.veto || m.veto.history.length < 7) {
+                m.veto = { format: isBo3 ? 'bo3' : 'bo1', history: [] };
+                let availableMaps = [...VALORANT_MAPS].sort(() => Math.random() - 0.5);
+                VETO_STEPS[m.veto.format].forEach(step => {
+                    const selectedMap = availableMaps.shift();
+                    m.veto.history.push({ map: selectedMap, action: step.action, by: step.by === 'auto' ? 'auto' : (step.by === 't1' ? m.t1.id : m.t2.id) });
+                });
+            }
+            const actualFmt = m.veto.format;
+            const s1 = actualFmt === 'bo3' ? (Math.random()>0.5?2:Math.floor(Math.random()*2)) : (Math.random()>0.5?13:Math.floor(Math.random()*12));
+            const s2 = actualFmt === 'bo3' ? (s1===2?Math.floor(Math.random()*2):2) : (s1===13?Math.floor(Math.random()*12):13);
+            processMatchResult(m.id, s1, s2, true);
         });
+        render();
     }
 
-    // --- RENDERERS ---
     function render() {
+        preserveInputs();
         const btn = document.getElementById('mainActionBtn');
         document.getElementById('vizPhaseTag').innerText = phase === 'swiss' ? "SWISS STAGE" : "CHAMPIONS STAGE";
-        
         if (phase === 'swiss') {
             document.getElementById('phaseTag').innerText = "Swiss Stage";
             document.getElementById('roundDisplay').innerText = currentRound === 0 ? "Setup Phase" : `Round ${currentRound}`;
@@ -384,26 +483,14 @@
             document.getElementById('roundDisplay').innerText = "Knockout Playoffs";
             btn.innerText = "ADVANCE BRACKET"; btn.className = "bg-yellow-600 hover:bg-yellow-500 px-8 py-3 rounded-xl font-bold text-white shadow-[0_0_20px_rgba(202,138,4,0.4)]";
         }
-
-        renderStandings();
-        renderMatches();
-        renderVisualizer();
+        renderStandings(); renderMatches(); renderVisualizer();
     }
 
     function renderStandings() {
         document.getElementById('standingsList').innerHTML = getSortedTeams().map((t, i) => `
             <div class="flex items-center justify-between p-3 border-l-2 ${t.status === 'qualified' ? 'qualified border-emerald-500' : (t.status === 'eliminated' ? 'eliminated border-red-500' : 'border-transparent')} hover:bg-slate-800/40">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <span class="font-mono text-slate-500 text-xs w-4">${i + 1}.</span>
-                    <div><p class="font-bold text-sm truncate ${t.status === 'qualified' ? 'text-emerald-400' : ''}">${t.name}</p></div>
-                </div>
-                <div class="text-right shrink-0 ml-2">
-                    <div class="font-mono font-bold text-sm">
-                        <span class="${t.wins>0?'text-emerald-400':'text-slate-400'}">${t.wins}W</span> - 
-                        <span class="${t.losses>0?'text-red-400':'text-slate-400'}">${t.losses}L</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-medium">Diff: <span class="${t.mapDiff>0?'text-emerald-500':(t.mapDiff<0?'text-red-500':'')}">${t.mapDiff>0?'+':''}${t.mapDiff}</span></div>
-                </div>
+                <div class="flex items-center gap-3 overflow-hidden"><span class="font-mono text-slate-500 text-xs w-4">${i + 1}.</span><div><p class="font-bold text-sm truncate ${t.status === 'qualified' ? 'text-emerald-400' : ''}">${t.name}</p></div></div>
+                <div class="text-right shrink-0 ml-2"><div class="font-mono font-bold text-sm"><span class="${t.wins>0?'text-emerald-400':'text-slate-400'}">${t.wins}W</span> - <span class="${t.losses>0?'text-red-400':'text-slate-400'}">${t.losses}L</span></div><div class="text-[10px] text-slate-400 font-medium">Diff: <span class="${t.mapDiff>0?'text-emerald-500':(t.mapDiff<0?'text-red-500':'')}">${t.mapDiff>0?'+':''}${t.mapDiff}</span></div></div>
             </div>`).join('');
     }
 
@@ -429,9 +516,24 @@
 
     function generateMatchCardHTML(m, isPlayoff = false) {
         const accent = isPlayoff ? 'from-yellow-600 to-orange-500' : 'from-blue-500 to-emerald-500';
+        let vetoUI = '';
+        if (m.veto && m.veto.history.length === 7) {
+            const picks = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
+            vetoUI = `<div class="mt-2 flex gap-1 justify-center flex-wrap">` + picks.map(p => {
+                const color = p.action === 'decider' ? 'text-yellow-400 border-yellow-500/50 bg-yellow-900/20' : 'text-emerald-400 border-emerald-500/50 bg-emerald-900/20';
+                return `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${color}">${p.map.toUpperCase()}</span>`;
+            }).join('') + `</div>`;
+        } else if (m.veto && m.veto.history.length > 0) {
+            vetoUI = `<div class="mt-2 text-[9px] text-center text-slate-500 uppercase font-bold tracking-widest">Veto in progress...</div>`;
+        }
+
         const scoreUI = m.winnerId ? 
             `<div class="flex items-center gap-3"><span class="text-xl font-bold ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600">-</span><span class="text-xl font-bold ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-2 text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded">Finished</div>` : 
-            `<div class="flex items-center gap-1"><input id="s1_${m.id}" type="number" min="0" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 font-bold outline-none"><span class="text-slate-500 font-bold">:</span><input id="s2_${m.id}" type="number" min="0" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 font-bold outline-none"></div><button onclick="submitScoreUI('${m.id}')" class="mt-2 bg-slate-700 hover:bg-slate-600 text-xs font-bold px-4 py-1 rounded transition-colors w-full border border-slate-600">SUBMIT</button>`;
+            `<div class="flex items-center gap-1"><input id="s1_${m.id}" type="number" min="0" value="${m.tempS1 !== undefined ? m.tempS1 : ''}" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 font-bold outline-none"><span class="text-slate-500 font-bold">:</span><input id="s2_${m.id}" type="number" min="0" value="${m.tempS2 !== undefined ? m.tempS2 : ''}" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 font-bold outline-none"></div>
+             <div class="flex gap-1 mt-2 w-full">
+                <button type="button" onclick="submitScoreUI('${m.id}')" class="bg-slate-700 hover:bg-slate-600 text-[10px] font-bold px-2 py-1.5 rounded transition-colors w-full border border-slate-600 uppercase">Submit</button>
+                <button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600/30 hover:bg-blue-600/50 text-[10px] font-bold text-blue-300 px-2 py-1.5 rounded transition-colors border border-blue-500/30 uppercase">Maps</button>
+             </div>${vetoUI}`;
 
         return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-4 rounded-xl shadow-xl relative overflow-hidden group">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${accent} opacity-75"></div>
@@ -443,10 +545,7 @@
             </div></div>`;
     }
 
-    // --- VISUALIZER ENGINE ---
-    function getPos(col, row) {
-        return { x: `${(col - 0.5) * (100 / 6)}%`, y: `${(row - 0.5) * (100 / 7)}%` };
-    }
+    function getPos(col, row) { return { x: `${(col - 0.5) * (100 / 6)}%`, y: `${(row - 0.5) * (100 / 7)}%` }; }
 
     function renderVisualizer() {
         const vc = document.getElementById('visualizerContainer');
@@ -455,9 +554,7 @@
         if (phase === 'swiss') {
             let vizRound = currentRound;
             const activeSwissMatches = matches.filter(m => m.type === 'swiss' && !m.winnerId);
-            if (currentRound > 0 && activeSwissMatches.length === 0) {
-                vizRound = currentRound + 1; 
-            }
+            if (currentRound > 0 && activeSwissMatches.length === 0) vizRound = currentRound + 1; 
 
             const connections = [
                 { from: [1,4], to: [2,3], win: true }, { from: [1,4], to: [2,5], win: false },
@@ -474,8 +571,7 @@
             let svgLines = `<svg class="absolute inset-0 w-full h-full pointer-events-none z-0">`;
             connections.forEach(c => {
                 if (vizRound >= c.to[0]) {
-                    const p1 = getPos(c.from[0], c.from[1]);
-                    const p2 = getPos(c.to[0], c.to[1]);
+                    const p1 = getPos(c.from[0], c.from[1]), p2 = getPos(c.to[0], c.to[1]);
                     svgLines += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" class="${c.win ? 'flow-line-win' : 'flow-line-loss'}" />`;
                 }
             });
@@ -497,7 +593,6 @@
                 { type: 'match', pool: '2-1', title: '2:1', c: 4, r: 3, color: 'border-[#84cc16] shadow-[0_0_12px_rgba(132,204,22,0.5)] text-[#a3e635]' },
                 { type: 'match', pool: '1-2', title: '1:2', c: 4, r: 5, color: 'border-[#f97316] shadow-[0_0_12px_rgba(249,115,22,0.5)] text-[#fb923c]' },
                 { type: 'match', pool: '2-2', title: '2:2', c: 5, r: 4, color: 'border-[#eab308] shadow-[0_0_12px_rgba(234,179,8,0.5)] text-[#facc15]' },
-
                 { type: 'result', w: 3, l: 0, title: '3:0 Champion', c: 4, r: 1, color: 'border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.6)] text-[#4ade80] bg-[#064e3b]/40' },
                 { type: 'result', w: 3, l: 1, title: '3:1 Champion', c: 5, r: 2, color: 'border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.6)] text-[#4ade80] bg-[#064e3b]/40' },
                 { type: 'result', w: 3, l: 2, title: '3:2 Champion', c: 6, r: 3, color: 'border-[#22c55e] shadow-[0_0_15px_rgba(34,197,94,0.6)] text-[#4ade80] bg-[#064e3b]/40' },
@@ -512,50 +607,34 @@
                     const poolMatches = getMatches(b.pool);
                     if (poolMatches.length === 0) return; 
                     
-                    const isBo3 = b.pool.includes('2'); 
-                    const formatStr = isBo3 ? 'Bo3' : 'Bo1';
-
                     contentHtml = poolMatches.map(m => {
-                        const s1 = m.winnerId ? m.scoreT1 : '';
-                        const s2 = m.winnerId ? m.scoreT2 : '';
                         const isPlayed = m.winnerId !== null;
                         const w1Class = m.winnerId === m.t1.id ? 'text-white font-bold' : (isPlayed ? 'text-[#64748b]' : 'text-[#cbd5e1]');
                         const w2Class = m.winnerId === m.t2.id ? 'text-white font-bold' : (isPlayed ? 'text-[#64748b]' : 'text-[#cbd5e1]');
                         const scoreClass = isPlayed ? 'text-[#4ade80] font-black' : 'text-[#475569]';
-
                         return `
                         <div class="flex items-center justify-between py-[6px] px-2 bg-[#111827]/90 rounded mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10">
                             <span class="w-14 truncate text-right text-[12px] ${w1Class}" title="${m.t1.name}">${m.t1.name.substring(0,3).toUpperCase()}</span>
-                            <span class="text-[12px] mx-2 tracking-widest ${scoreClass}">${isPlayed ? `${s1}-${s2}` : 'vs'}</span>
+                            <span class="text-[12px] mx-2 tracking-widest ${scoreClass}">${isPlayed ? `${m.scoreT1}-${m.scoreT2}` : 'vs'}</span>
                             <span class="w-14 truncate text-left text-[12px] ${w2Class}" title="${m.t2.name}">${m.t2.name.substring(0,3).toUpperCase()}</span>
                         </div>`;
                     }).join('');
 
+                    const repMatch = poolMatches[0];
+                    const formatStr = repMatch.veto ? repMatch.veto.format.toUpperCase() : (b.pool.includes('2') ? 'BO3' : 'BO1');
+
                     html += `
                     <div class="border-[2px] rounded-lg p-2 bg-[#0f172a] flex flex-col ${b.color} relative z-10" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;">
                         <div class="flex justify-between items-center px-1 pb-1 mb-2">
-                            <span class="text-[11px] font-black uppercase tracking-wider">${b.title}</span>
-                            <span class="text-[9px] font-bold opacity-60 tracking-wider">${formatStr}</span>
-                        </div>
-                        ${contentHtml}
+                            <span class="text-[11px] font-black uppercase tracking-wider">${b.title}</span><span class="text-[9px] font-bold opacity-60 tracking-wider">${formatStr}</span>
+                        </div>${contentHtml}
                     </div>`;
                 } else {
                     const poolTeams = getTeams(b.w, b.l);
                     if (poolTeams.length === 0) return;
 
-                    contentHtml = poolTeams.map(t => `
-                        <div class="flex items-center justify-center py-2 bg-[#111827]/90 rounded mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10">
-                            <span class="font-bold text-[13px] text-white tracking-wide truncate px-2" title="${t.name}">${t.name}</span>
-                        </div>
-                    `).join('');
-
-                    html += `
-                    <div class="border-[2px] rounded-lg p-2 flex flex-col ${b.color} relative z-10" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;">
-                        <div class="text-[10px] font-bold uppercase tracking-widest text-center pb-1 mb-2">
-                            ${b.title}
-                        </div>
-                        ${contentHtml}
-                    </div>`;
+                    contentHtml = poolTeams.map(t => `<div class="flex items-center justify-center py-2 bg-[#111827]/90 rounded mb-1.5 border border-[#334155] relative z-10"><span class="font-bold text-[13px] text-white tracking-wide truncate px-2" title="${t.name}">${t.name}</span></div>`).join('');
+                    html += `<div class="border-[2px] rounded-lg p-2 flex flex-col ${b.color} relative z-10" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;"><div class="text-[10px] font-bold uppercase tracking-widest text-center pb-1 mb-2">${b.title}</div>${contentHtml}</div>`;
                 }
             });
 
@@ -566,45 +645,29 @@
                 if(!m) return `<div class="bracket-match border-dashed border-slate-700 bg-transparent text-slate-600 text-center italic py-4">TBD</div>`;
                 const t1Class = m.winnerId === m.t1.id ? 'winner' : (m.winnerId ? 'text-slate-500' : 'text-slate-300');
                 const t2Class = m.winnerId === m.t2.id ? 'winner' : (m.winnerId ? 'text-slate-500' : 'text-slate-300');
-                return `<div class="bracket-match group hover:border-slate-500 transition-colors">
-                    <div class="text-[9px] text-slate-500 uppercase tracking-wider mb-1 px-1">${m.label}</div>
-                    <div class="bracket-team ${t1Class}"><span class="truncate pr-2">${m.t1.name}</span><span class="font-bold">${m.scoreT1!==0||m.winnerId?m.scoreT1:'-'}</span></div>
-                    <div class="border-t border-slate-700 my-0.5"></div>
-                    <div class="bracket-team ${t2Class}"><span class="truncate pr-2">${m.t2.name}</span><span class="font-bold">${m.scoreT2!==0||m.winnerId?m.scoreT2:'-'}</span></div>
-                </div>`;
+                return `<div class="bracket-match group hover:border-slate-500 transition-colors"><div class="text-[9px] text-slate-500 uppercase tracking-wider mb-1 px-1">${m.label}</div><div class="bracket-team ${t1Class}"><span class="truncate pr-2">${m.t1.name}</span><span class="font-bold">${m.scoreT1!==0||m.winnerId?m.scoreT1:'-'}</span></div><div class="border-t border-slate-700 my-0.5"></div><div class="bracket-team ${t2Class}"><span class="truncate pr-2">${m.t2.name}</span><span class="font-bold">${m.scoreT2!==0||m.winnerId?m.scoreT2:'-'}</span></div></div>`;
             };
 
-            // Detect if Tournament is completely over for the Podium
             let podiumHtml = '';
             if (playoffMatches.final?.winnerId && playoffMatches.third?.winnerId) {
                 const first = teams.find(t => t.id === playoffMatches.final.winnerId);
                 const second = teams.find(t => t.id === (playoffMatches.final.t1.id === playoffMatches.final.winnerId ? playoffMatches.final.t2.id : playoffMatches.final.t1.id));
                 const third = teams.find(t => t.id === playoffMatches.third.winnerId);
-
                 podiumHtml = `
                 <div class="flex flex-col justify-end items-center h-full pl-16 ml-4 border-l border-slate-800/50 min-w-[300px] pb-4">
                     <h3 class="text-xl font-black text-white mb-6 tracking-widest uppercase shadow-black drop-shadow-lg">Champions</h3>
                     <div class="flex items-end gap-2 h-48 mt-auto">
                         <div class="flex flex-col items-center group podium-step w-20" style="animation-delay: 0.2s">
                             <span class="text-slate-300 font-bold text-xs mb-2 truncate max-w-[80px] text-center w-full" title="${second.name}">${second.name}</span>
-                            <div class="w-full bg-gradient-to-t from-slate-500 to-slate-300 rounded-t-lg shadow-[0_0_15px_rgba(148,163,184,0.4)] flex items-start justify-center pt-2 h-24 relative border-t-2 border-slate-200">
-                                <span class="text-slate-800 font-black text-2xl">2</span>
-                                <div class="absolute -top-5 text-2xl">🥈</div>
-                            </div>
+                            <div class="w-full bg-gradient-to-t from-slate-500 to-slate-300 rounded-t-lg shadow-[0_0_15px_rgba(148,163,184,0.4)] flex items-start justify-center pt-2 h-24 relative border-t-2 border-slate-200"><span class="text-slate-800 font-black text-2xl">2</span><div class="absolute -top-5 text-2xl">🥈</div></div>
                         </div>
                         <div class="flex flex-col items-center group z-10 podium-step w-24" style="animation-delay: 0.6s">
                             <span class="text-yellow-400 font-bold text-base mb-2 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)] truncate max-w-[100px] text-center w-full" title="${first.name}">${first.name}</span>
-                            <div class="w-full bg-gradient-to-t from-yellow-700 to-yellow-400 rounded-t-lg shadow-[0_0_30px_rgba(234,179,8,0.6)] flex items-start justify-center pt-2 h-36 relative border-t-2 border-yellow-200">
-                                <span class="text-yellow-900 font-black text-3xl">1</span>
-                                <div class="absolute -top-6 text-4xl">🏆</div>
-                            </div>
+                            <div class="w-full bg-gradient-to-t from-yellow-700 to-yellow-400 rounded-t-lg shadow-[0_0_30px_rgba(234,179,8,0.6)] flex items-start justify-center pt-2 h-36 relative border-t-2 border-yellow-200"><span class="text-yellow-900 font-black text-3xl">1</span><div class="absolute -top-6 text-4xl">🏆</div></div>
                         </div>
                         <div class="flex flex-col items-center group podium-step w-20" style="animation-delay: 0.4s">
                             <span class="text-amber-600 font-bold text-xs mb-2 truncate max-w-[80px] text-center w-full" title="${third.name}">${third.name}</span>
-                            <div class="w-full bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-lg shadow-[0_0_15px_rgba(217,119,6,0.4)] flex items-start justify-center pt-2 h-16 relative border-t-2 border-amber-500">
-                                <span class="text-amber-950 font-black text-2xl">3</span>
-                                <div class="absolute -top-4 text-2xl">🥉</div>
-                            </div>
+                            <div class="w-full bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-lg shadow-[0_0_15px_rgba(217,119,6,0.4)] flex items-start justify-center pt-2 h-16 relative border-t-2 border-amber-500"><span class="text-amber-950 font-black text-2xl">3</span><div class="absolute -top-4 text-2xl">🥉</div></div>
                         </div>
                     </div>
                 </div>`;
@@ -612,10 +675,7 @@
 
             vc.innerHTML = `
                 <div class="bracket-col pl-8">${playoffMatches.qf.map(m => drawBracketMatch(m)).join('')}</div>
-                <div class="bracket-col justify-evenly pl-12 border-l border-slate-800/50 relative">
-                    <div class="absolute top-1/2 -left-3 w-6 h-px bg-slate-800/50"></div>
-                    ${playoffMatches.sf.length ? playoffMatches.sf.map(m => drawBracketMatch(m)).join('') : [null, null].map(m=>drawBracketMatch(m)).join('')}
-                </div>
+                <div class="bracket-col justify-evenly pl-12 border-l border-slate-800/50 relative"><div class="absolute top-1/2 -left-3 w-6 h-px bg-slate-800/50"></div>${playoffMatches.sf.length ? playoffMatches.sf.map(m => drawBracketMatch(m)).join('') : [null, null].map(m=>drawBracketMatch(m)).join('')}</div>
                 <div class="bracket-col justify-center gap-20 pl-12 border-l border-slate-800/50">
                     <div class="relative"><div class="absolute -top-6 left-0 text-[11px] text-yellow-500 font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.5)]">Grand Final</div>${drawBracketMatch(playoffMatches.final)}</div>
                     <div class="relative mt-8"><div class="absolute -top-6 left-0 text-[11px] text-slate-500 font-bold uppercase tracking-widest">3rd Place Match</div>${drawBracketMatch(playoffMatches.third)}</div>
