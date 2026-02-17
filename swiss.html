@@ -32,6 +32,15 @@
         }
         .group:hover .map-tooltip { opacity: 1; visibility: visible; bottom: 120%; }
         .bracket-match.group:hover .map-tooltip { bottom: 100%; }
+        
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 font-sans selection:bg-emerald-500/30">
@@ -604,16 +613,16 @@
         } else if (m.veto && m.veto.history.length === 7) {
             const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
             const inputs = playable.map((p, idx) => `
-                <div class="flex items-center justify-between gap-1 w-full text-[9px] mb-1">
-                    <span class="text-slate-400 w-10 truncate uppercase" title="${p.map}">${p.map}</span>
-                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-7 bg-slate-800 border border-slate-600 rounded text-center py-0.5 font-bold outline-none appearance-none">
-                    <span class="text-slate-600">:</span>
-                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-7 bg-slate-800 border border-slate-600 rounded text-center py-0.5 font-bold outline-none appearance-none">
+                <div class="flex items-center justify-between gap-2 w-full text-[10px] mb-1.5">
+                    <span class="text-slate-400 w-12 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
+                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-colors">
+                    <span class="text-slate-600 font-bold">:</span>
+                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-colors">
                 </div>
             `).join('');
-            controlUI = `<div class="flex flex-col w-full px-2">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1 bg-emerald-700 hover:bg-emerald-600 text-[9px] font-bold px-2 py-1 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Maps</button>`;
+            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1.5 bg-emerald-700 hover:bg-emerald-600 text-[10px] font-bold px-2 py-1.5 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Maps</button>`;
         } else {
-            controlUI = `<div class="text-[10px] text-slate-400 text-center mb-2 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[10px] font-bold text-white px-4 py-1.5 rounded transition-colors border border-blue-500 uppercase shadow-lg">Start Veto</button>`;
+            controlUI = `<div class="text-[11px] text-slate-400 text-center mb-2 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[11px] font-bold text-white px-4 py-2 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
         }
 
         return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-4 rounded-xl shadow-xl relative overflow-visible group">
@@ -621,7 +630,7 @@
             <div class="text-[10px] text-center text-slate-400 font-bold mb-4 uppercase tracking-widest">${m.label}</div>
             <div class="flex items-center justify-between gap-4">
                 <div class="flex-1 text-right truncate font-bold ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
-                <div class="flex flex-col items-center shrink-0 w-32">${controlUI}</div>
+                <div class="flex flex-col items-center shrink-0 w-40">${controlUI}</div>
                 <div class="flex-1 text-left truncate font-bold ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}">${m.t2.name}</div>
             </div>${generateHoverTooltip(m)}</div>`;
     }
