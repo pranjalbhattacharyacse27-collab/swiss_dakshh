@@ -115,7 +115,7 @@
 </div>
 
 <div id="vetoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden transform transition-all">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden transform transition-all">
         <div class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center">
             <h3 class="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
                 Map Veto System <span class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 text-[10px] px-2 py-0.5 rounded shadow-[0_0_10px_rgba(16,185,129,0.3)]">LIVE</span>
@@ -139,7 +139,6 @@
             </div>
             
             <div id="vetoStatus" class="text-center text-xl bg-slate-800/80 py-3 rounded-lg border border-slate-700 shadow-inner font-black uppercase tracking-widest"></div>
-
             <div id="vetoMapsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
 
@@ -164,6 +163,17 @@
     let playoffMatches = { qf: [], sf: [], final: null, third: null };
 
     const VALORANT_MAPS = ["Abyss", "Bind", "Breeze", "Corrode", "Haven", "Pearl", "Split"];
+    
+    const MAP_IMAGES = {
+        "Abyss": "https://media.valorant-api.com/maps/2c46d570-49c4-eb1c-4d46-a6a1b18bc865/splash.png",
+        "Bind": "https://media.valorant-api.com/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba/splash.png",
+        "Breeze": "https://media.valorant-api.com/maps/2fb9a4fd-47b8-4e7d-a969-74b4046ebd53/splash.png",
+        "Corrode": "https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png", 
+        "Haven": "https://media.valorant-api.com/maps/2bee0dc9-4ffe-519b-1cbd-7fbe763a6047/splash.png",
+        "Pearl": "https://media.valorant-api.com/maps/fd267378-4d1d-484f-ff52-77821ed10dc2/splash.png",
+        "Split": "https://media.valorant-api.com/maps/d960549e-485c-e861-8d71-aa9d1aed12a2/splash.png"
+    };
+
     let activeVetoMatchId = null;
 
     const VETO_STEPS = {
@@ -356,25 +366,29 @@
         document.getElementById('vetoMapsGrid').innerHTML = VALORANT_MAPS.map(map => {
             const hIndex = v.history.findIndex(h => h.map === map);
             const hItem = hIndex !== -1 ? v.history[hIndex] : null;
-            const stepNum = hItem ? `<div class="absolute top-1 left-2 text-[12px] font-black text-slate-400 z-20">#${hIndex + 1}</div>` : '';
+            const stepNum = hItem ? `<div class="absolute top-2 left-3 text-sm font-black text-slate-100 z-20 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">#${hIndex + 1}</div>` : '';
             
-            let bClass = "h-28 flex items-center justify-center rounded-xl border-2 font-black text-xl uppercase tracking-widest transition-all relative overflow-hidden ";
+            let bClass = "group h-32 flex items-center justify-center rounded-xl border-2 font-black text-2xl uppercase tracking-widest transition-all relative overflow-hidden ";
             let overlay = "";
             if (!hItem) {
-                bClass += "border-slate-700 bg-slate-800 text-slate-300 hover:border-blue-500 hover:bg-slate-700 hover:scale-[1.02] cursor-pointer shadow-lg";
+                bClass += "border-slate-700 bg-slate-900 text-slate-300 hover:border-blue-500 hover:text-white hover:scale-[1.02] cursor-pointer shadow-lg";
             } else if (hItem.action === 'ban') {
                 const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
-                bClass += "border-red-600/50 bg-red-900/20 text-red-500 opacity-60 cursor-not-allowed";
-                overlay = `<div class="absolute inset-0 flex items-center justify-center"><div class="w-[120%] h-1 bg-red-600 rotate-[20deg] opacity-70"></div></div><div class="absolute bottom-1 bg-red-900/80 px-2 rounded text-[10px] text-red-300 border border-red-500/50">BANNED: ${bName}</div>`;
+                bClass += "border-red-600/50 bg-slate-900 text-red-500 opacity-60 cursor-not-allowed";
+                overlay = `<div class="absolute inset-0 flex items-center justify-center z-20"><div class="w-[120%] h-1 bg-red-600 rotate-[20deg] opacity-70"></div></div><div class="absolute bottom-2 bg-red-900/90 px-2 py-0.5 rounded text-xs text-red-100 border border-red-500/50 z-20 drop-shadow-md">BANNED: ${bName}</div>`;
             } else if (hItem.action === 'pick') {
                 const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
-                bClass += "border-emerald-500 bg-emerald-900/40 text-emerald-400 cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.3)]";
-                overlay = `<div class="absolute bottom-1 bg-emerald-900/80 px-2 rounded text-[10px] text-emerald-300 border border-emerald-500/50">PICKED: ${bName}</div>`;
+                bClass += "border-emerald-500 bg-slate-900 text-emerald-400 cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.3)]";
+                overlay = `<div class="absolute bottom-2 bg-emerald-900/90 px-2 py-0.5 rounded text-xs text-emerald-100 border border-emerald-500/50 z-20 drop-shadow-md">PICKED: ${bName}</div>`;
             } else if (hItem.action === 'decider') {
-                bClass += "border-yellow-500 bg-yellow-900/40 text-yellow-400 cursor-not-allowed shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02]";
-                overlay = `<div class="absolute bottom-1 bg-yellow-900/80 px-2 rounded text-[10px] text-yellow-300 border border-yellow-500/50 tracking-widest">DECIDER</div>`;
+                bClass += "border-yellow-500 bg-slate-900 text-yellow-400 cursor-not-allowed shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02]";
+                overlay = `<div class="absolute bottom-2 bg-yellow-900/90 px-2 py-0.5 rounded text-xs text-yellow-100 border border-yellow-500/50 tracking-widest z-20 drop-shadow-md">DECIDER</div>`;
             }
-            return `<div onclick="handleMapClick(event, '${map}')" class="${bClass}">${stepNum}<span class="z-10 drop-shadow-md">${map}</span>${overlay}</div>`;
+
+            const mapBg = MAP_IMAGES[map] || '';
+            const imgLayer = `<div class="absolute inset-0 bg-cover bg-center opacity-30 grayscale mix-blend-luminosity transition-all duration-300 group-hover:opacity-60 group-hover:grayscale-0" style="background-image: url('${mapBg}');"></div><div class="absolute inset-0 bg-slate-950/50"></div>`;
+
+            return `<div onclick="handleMapClick(event, '${map}')" class="${bClass}">${imgLayer}${stepNum}<span class="z-10 drop-shadow-[0_3px_3px_rgba(0,0,0,1)]">${map}</span>${overlay}</div>`;
         }).join('');
     }
 
@@ -528,11 +542,12 @@
     function generateHoverTooltip(m) {
         if (!m || !m.winnerId || !m.mapScores || m.mapScores.length === 0) return '';
         const mList = m.mapScores.map((ms, i) => `
-            <div class="flex justify-between items-center gap-6 px-1 py-0.5 whitespace-nowrap">
-                <span class="text-slate-300 font-bold uppercase text-[10px]">Map ${i+1}: ${ms.map}</span>
-                <span class="font-mono text-white font-black text-[11px]">${ms.s1} - ${ms.s2}</span>
+            <div class="flex justify-between items-center gap-6 px-1 py-1 whitespace-nowrap">
+                <span class="text-slate-300 font-bold uppercase text-[11px] w-20 text-left">Map ${i+1}</span>
+                <span class="text-slate-400 font-black uppercase text-[11px] w-24 text-center">${ms.map}</span>
+                <span class="font-mono text-emerald-400 font-black text-[12px] w-16 text-right">${ms.s1} - ${ms.s2}</span>
             </div>`).join('');
-        return `<div class="map-tooltip"><div class="text-[9px] font-black text-emerald-400 border-b border-slate-700 pb-1 mb-1.5 text-center tracking-widest">MAP RESULTS</div><div class="flex flex-col gap-0.5">${mList}</div></div>`;
+        return `<div class="map-tooltip"><div class="text-[10px] font-black text-emerald-400 border-b border-slate-700 pb-1.5 mb-2 text-center tracking-widest uppercase shadow-md">Match Results</div><div class="flex flex-col gap-1">${mList}</div></div>`;
     }
 
     function render() {
@@ -609,29 +624,29 @@
 
         let controlUI = '';
         if (m.winnerId) {
-            controlUI = `<div class="flex items-center gap-3"><span class="text-xl font-bold ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600">-</span><span class="text-xl font-bold ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-2 text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded">Finished</div>`;
+            controlUI = `<div class="flex items-center gap-3"><span class="text-2xl font-black ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600 font-bold">-</span><span class="text-2xl font-black ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-2 text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded shadow-inner">Match Finished</div>`;
         } else if (m.veto && m.veto.history.length === 7) {
             const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
             const inputs = playable.map((p, idx) => `
-                <div class="flex items-center justify-between gap-2 w-full text-[10px] mb-1.5">
-                    <span class="text-slate-400 w-12 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
-                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-colors">
+                <div class="flex items-center justify-between gap-2 w-full text-[10px] mb-2">
+                    <span class="text-slate-400 w-14 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
+                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-14 bg-slate-800 border border-slate-600 rounded text-center py-1.5 text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
                     <span class="text-slate-600 font-bold">:</span>
-                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-10 bg-slate-800 border border-slate-600 rounded text-center py-1 text-xs font-bold outline-none appearance-none focus:border-blue-500 transition-colors">
+                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-14 bg-slate-800 border border-slate-600 rounded text-center py-1.5 text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
                 </div>
             `).join('');
-            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1.5 bg-emerald-700 hover:bg-emerald-600 text-[10px] font-bold px-2 py-1.5 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Maps</button>`;
+            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-2 bg-emerald-700 hover:bg-emerald-600 text-[11px] font-bold px-4 py-2 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Match</button>`;
         } else {
-            controlUI = `<div class="text-[11px] text-slate-400 text-center mb-2 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[11px] font-bold text-white px-4 py-2 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
+            controlUI = `<div class="text-[11px] text-slate-400 text-center mb-3 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[11px] font-bold text-white px-4 py-2 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
         }
 
-        return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-4 rounded-xl shadow-xl relative overflow-visible group">
+        return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-5 rounded-xl shadow-xl relative overflow-visible group">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-xl bg-gradient-to-r ${accent} opacity-75"></div>
-            <div class="text-[10px] text-center text-slate-400 font-bold mb-4 uppercase tracking-widest">${m.label}</div>
-            <div class="flex items-center justify-between gap-4">
-                <div class="flex-1 text-right truncate font-bold ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
-                <div class="flex flex-col items-center shrink-0 w-40">${controlUI}</div>
-                <div class="flex-1 text-left truncate font-bold ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}">${m.t2.name}</div>
+            <div class="text-[11px] text-center text-slate-400 font-bold mb-4 uppercase tracking-widest">${m.label}</div>
+            <div class="flex items-center justify-between gap-6">
+                <div class="flex-1 text-right truncate font-bold text-lg ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
+                <div class="flex flex-col items-center shrink-0 w-44">${controlUI}</div>
+                <div class="flex-1 text-left truncate font-bold text-lg ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}">${m.t2.name}</div>
             </div>${generateHoverTooltip(m)}</div>`;
     }
 
@@ -702,10 +717,20 @@
                         const w1Class = m.winnerId === m.t1.id ? 'text-white font-bold' : (isPlayed ? 'text-[#64748b]' : 'text-[#cbd5e1]');
                         const w2Class = m.winnerId === m.t2.id ? 'text-white font-bold' : (isPlayed ? 'text-[#64748b]' : 'text-[#cbd5e1]');
                         const scoreClass = isPlayed ? 'text-[#4ade80] font-black' : 'text-[#475569]';
+                        
+                        let displayScore = 'vs';
+                        if (isPlayed) {
+                            if (m.veto && m.veto.format === 'bo1') {
+                                displayScore = `${m.mapScores[0].s1}-${m.mapScores[0].s2}`;
+                            } else {
+                                displayScore = `${m.scoreT1}-${m.scoreT2}`;
+                            }
+                        }
+
                         return `
                         <div class="flex items-center justify-between py-[6px] px-2 bg-[#111827]/90 rounded mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10 group cursor-default">
                             <span class="w-14 truncate text-right text-[12px] ${w1Class}" title="${m.t1.name}">${m.t1.name.substring(0,3).toUpperCase()}</span>
-                            <span class="text-[12px] mx-2 tracking-widest ${scoreClass}">${isPlayed ? `${m.scoreT1}-${m.scoreT2}` : 'vs'}</span>
+                            <span class="text-[12px] mx-2 tracking-widest ${scoreClass}">${displayScore}</span>
                             <span class="w-14 truncate text-left text-[12px] ${w2Class}" title="${m.t2.name}">${m.t2.name.substring(0,3).toUpperCase()}</span>
                             ${generateHoverTooltip(m)}
                         </div>`;
