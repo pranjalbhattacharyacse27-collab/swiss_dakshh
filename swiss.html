@@ -23,15 +23,24 @@
         @keyframes flowLoss { to { stroke-dashoffset: -12; } }
         @keyframes riseUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .podium-step { animation: riseUp 0.8s ease-out forwards; }
+        
         .map-tooltip {
-            position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
             background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9); z-index: 105;
             width: max-content; min-width: 180px; 
-            opacity: 0; visibility: hidden; transition: all 0.2s; pointer-events: none;
+            opacity: 0; visibility: hidden; transition: all 0.2s ease-out; pointer-events: none;
         }
-        .group:hover .map-tooltip { opacity: 1; visibility: visible; bottom: 120%; }
-        .bracket-match.group:hover .map-tooltip { bottom: 100%; }
+        /* Fix for edge columns getting cut off */
+        .map-tooltip.tooltip-right { left: 0; transform: none; }
+        .map-tooltip.tooltip-left { left: auto; right: 0; transform: none; }
+        
+        .group:hover .map-tooltip:not(.active) { opacity: 1; visibility: visible; bottom: 110%; }
+        .map-tooltip.active { opacity: 1; visibility: visible; pointer-events: auto; bottom: 110%; z-index: 110; }
+        .bracket-match .group:hover .map-tooltip:not(.active) { bottom: 100%; }
+        .bracket-match .map-tooltip.active { bottom: 100%; }
+        .map-tooltip .close-btn { display: none; }
+        .map-tooltip.active .close-btn { display: block; }
         
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
@@ -77,7 +86,7 @@
                 <button type="button" id="btnViewPlayoffs" onclick="setViewPhase('playoffs')" class="px-3 md:px-4 py-1 rounded text-[10px] md:text-xs font-bold transition-all">PLAYOFFS</button>
             </div>
         </div>
-        <div id="visualizerContainer" class="viz-scroll overflow-x-auto pb-8 pt-8 px-4 flex gap-4 md:gap-8 items-stretch min-h-[500px] relative z-10 w-full scroll-smooth">
+        <div id="visualizerContainer" class="viz-scroll overflow-x-auto pb-12 pt-16 px-6 sm:px-12 flex gap-4 md:gap-8 items-stretch min-h-[500px] relative z-10 w-full scroll-smooth">
             <div class="m-auto text-slate-600 italic font-medium text-sm">Add 16 teams and start the tournament to view the bracket.</div>
         </div>
     </section>
@@ -88,7 +97,8 @@
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input id="tName" type="text" placeholder="Team Name" class="flex-[2] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-emerald-500 text-xs md:text-sm font-medium w-full">
                     <div class="flex gap-2 w-full sm:w-auto">
-                        <input id="tBias" type="number" placeholder="Seed" class="flex-1 sm:w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none text-xs md:text-sm">
+                        <input id="tTag" type="text" placeholder="TAG" maxlength="3" class="w-16 sm:w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 outline-none text-xs md:text-sm text-center uppercase font-bold text-blue-400">
+                        <input id="tBias" type="number" placeholder="Seed" class="flex-1 sm:w-24 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none text-xs md:text-sm">
                         <button type="button" onclick="addTeam()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold text-xs md:text-sm whitespace-nowrap">Add</button>
                     </div>
                 </div>
@@ -96,7 +106,7 @@
             <section class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
                 <div class="p-3 bg-slate-800/80 text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 flex justify-between">
                     <span>Rank & Team</span>
-                    <span class="mr-2">W-L | Map Diff</span>
+                    <span class="mr-2">W-L | RND DIFF</span>
                 </div>
                 <div id="standingsList" class="divide-y divide-slate-800/50 max-h-[400px] md:max-h-[600px] overflow-y-auto viz-scroll"></div>
             </section>
@@ -196,6 +206,21 @@
     const TEAMS_TO_QUALIFY = 3;
     const TEAMS_TO_ELIMINATE = 3;
 
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.map-tooltip') && !e.target.closest('[onclick*="toggleTooltip"]')) {
+            document.querySelectorAll('.map-tooltip.active').forEach(el => el.classList.remove('active'));
+        }
+    });
+
+    function toggleTooltip(e, tooltipId) {
+        if(e) e.stopPropagation();
+        const target = document.getElementById('tooltip_' + tooltipId);
+        if (!target) return;
+        const isActive = target.classList.contains('active');
+        document.querySelectorAll('.map-tooltip.active').forEach(el => el.classList.remove('active'));
+        if (!isActive) target.classList.add('active');
+    }
+
     function saveTournament() {
         if (teams.length === 0) return;
         preserveInputs();
@@ -235,9 +260,14 @@
 
     function generateRandomTeams() {
         if(teams.length > 0) return;
-        const proTeams = ["Sentinels", "Paper Rex", "FNATIC", "LOUD", "Team Heretics", "Karmine Corp", "NRG", "Leviatán", "Gen.G", "DRX", "ZETA DIVISION", "Cloud9", "100 Thieves", "T1", "Bleed Esports", "Bilibili Gaming"];
-        proTeams.forEach((name, i) => {
-            teams.push({ id: 'T' + i, name: name, initialSeed: 1600 - (i * 10), wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, mapDiff: 0, buchholz: 0, history: [], status: 'active' });
+        const proTeams = [
+            {n: "Sentinels", t: "SEN"}, {n: "Paper Rex", t: "PRX"}, {n: "FNATIC", t: "FNC"}, {n: "LOUD", t: "LUD"}, 
+            {n: "Team Heretics", t: "TH"}, {n: "Karmine Corp", t: "KC"}, {n: "NRG", t: "NRG"}, {n: "Leviatán", t: "LEV"}, 
+            {n: "Gen.G", t: "GEN"}, {n: "DRX", t: "DRX"}, {n: "ZETA DIVISION", t: "ZTA"}, {n: "Cloud9", t: "C9"}, 
+            {n: "100 Thieves", t: "100"}, {n: "T1", t: "T1"}, {n: "Bleed Esports", t: "BLD"}, {n: "Bilibili Gaming", t: "BLG"}
+        ];
+        proTeams.forEach((team, i) => {
+            teams.push({ id: 'T' + i, name: team.n, tag: team.t, initialSeed: 1600 - (i * 10), wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, roundsWon: 0, roundsLost: 0, roundDiff: 0, buchholz: 0, history: [], status: 'active' });
         });
         render();
     }
@@ -245,19 +275,47 @@
     function addTeam() {
         const n = document.getElementById('tName').value.trim();
         const b = parseInt(document.getElementById('tBias').value);
+        let tag = document.getElementById('tTag').value.trim().toUpperCase();
         if (!n || isNaN(b)) return;
-        teams.push({ id: 'T_' + Date.now().toString(), name: n, initialSeed: b, wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, mapDiff: 0, buchholz: 0, history: [], status: 'active' });
-        document.getElementById('tName').value = ""; document.getElementById('tBias').value = "";
+        if (!tag) tag = n.substring(0,3).toUpperCase();
+
+        teams.push({ id: 'T_' + Date.now().toString(), name: n, tag: tag, initialSeed: b, wins: 0, losses: 0, mapsWon: 0, mapsLost: 0, roundsWon: 0, roundsLost: 0, roundDiff: 0, buchholz: 0, history: [], status: 'active' });
+        document.getElementById('tName').value = ""; document.getElementById('tTag').value = ""; document.getElementById('tBias').value = "";
         render();
     }
 
     function calculateStats() {
+        // Reset rounds
+        teams.forEach(t => {
+            t.roundsWon = 0;
+            t.roundsLost = 0;
+        });
+
+        // Tally rounds from all valid matches
+        matches.forEach(m => {
+            if (m.winnerId && m.mapScores) {
+                m.mapScores.forEach(score => {
+                    const t1 = teams.find(t => t.id === m.t1.id);
+                    const t2 = teams.find(t => t.id === m.t2.id);
+                    if (t1) {
+                        t1.roundsWon += score.s1;
+                        t1.roundsLost += score.s2;
+                    }
+                    if (t2) {
+                        t2.roundsWon += score.s2;
+                        t2.roundsLost += score.s1;
+                    }
+                });
+            }
+        });
+
+        // Compute final differentials
         teams.forEach(t => {
             t.buchholz = t.history.reduce((acc, oppId) => {
                 const opp = teams.find(team => team.id === oppId);
                 return acc + (opp ? (opp.wins - opp.losses) : 0);
             }, 0);
-            t.mapDiff = t.mapsWon - t.mapsLost;
+            t.roundDiff = t.roundsWon - t.roundsLost;
         });
     }
 
@@ -266,7 +324,7 @@
         return [...teams].sort((a, b) => {
             if (b.wins !== a.wins) return b.wins - a.wins;
             if (a.losses !== b.losses) return a.losses - b.losses;
-            if (b.mapDiff !== a.mapDiff) return b.mapDiff - a.mapDiff;
+            if (b.roundDiff !== a.roundDiff) return b.roundDiff - a.roundDiff;
             if (b.buchholz !== a.buchholz) return b.buchholz - a.buchholz;
             return b.initialSeed - a.initialSeed;
         });
@@ -375,11 +433,11 @@
             if (!hItem) {
                 bClass += "border-slate-700 bg-slate-900 text-slate-300 hover:border-blue-500 hover:text-white hover:scale-[1.02] cursor-pointer shadow-lg";
             } else if (hItem.action === 'ban') {
-                const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
+                const bName = hItem.by === match.t1.id ? (match.t1.tag || match.t1.name.substring(0,3).toUpperCase()) : (match.t2.tag || match.t2.name.substring(0,3).toUpperCase());
                 bClass += "border-red-600/50 bg-slate-900 text-red-500 opacity-60 cursor-not-allowed";
                 overlay = `<div class="absolute inset-0 flex items-center justify-center z-20"><div class="w-[120%] h-1 bg-red-600 rotate-[20deg] opacity-70"></div></div><div class="absolute bottom-1 md:bottom-2 bg-red-900/90 px-2 py-0.5 rounded text-[9px] md:text-xs text-red-100 border border-red-500/50 z-20 drop-shadow-md">BANNED: ${bName}</div>`;
             } else if (hItem.action === 'pick') {
-                const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
+                const bName = hItem.by === match.t1.id ? (match.t1.tag || match.t1.name.substring(0,3).toUpperCase()) : (match.t2.tag || match.t2.name.substring(0,3).toUpperCase());
                 bClass += "border-emerald-500 bg-slate-900 text-emerald-400 cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.3)]";
                 overlay = `<div class="absolute bottom-1 md:bottom-2 bg-emerald-900/90 px-2 py-0.5 rounded text-[9px] md:text-xs text-emerald-100 border border-emerald-500/50 z-20 drop-shadow-md">PICKED: ${bName}</div>`;
             } else if (hItem.action === 'decider') {
@@ -397,15 +455,14 @@
     function advanceTournament() {
         preserveInputs();
         if (phase === 'swiss') {
-            if (teams.length === 0) return alert("Please add teams before starting the tournament.");
+            if (teams.length === 0) return;
             const activeTeams = teams.filter(t => t.status === 'active');
             if (activeTeams.length === 0 && teams.length > 0) {
                 if (teams.filter(t => t.status === 'qualified').length === 8) startPlayoffs();
-                else alert("Error: Tournament complete but qualified teams does not equal 8.");
                 return;
             }
-            if (matches.some(m => !m.winnerId)) return alert("Submit scores for all current matches.");
-            if (activeTeams.length % 2 !== 0) return alert("Need an even number of active teams.");
+            if (matches.some(m => m.type === 'swiss' && m.label === `Swiss Round ${currentRound}` && !m.winnerId)) return;
+            if (activeTeams.length % 2 !== 0) return;
             currentRound++;
             generateSwissPairings(activeTeams);
         } else { checkPlayoffProgress(); }
@@ -457,7 +514,7 @@
             const l1 = teams.find(t => t.id === (m1.winnerId === m1.t1.id ? m1.t2.id : m1.t1.id)), l2 = teams.find(t => t.id === (m2.winnerId === m2.t1.id ? m2.t2.id : m2.t1.id));
             playoffMatches.final = createPlayoffMatch(f1, f2, 'Grand Final');
             playoffMatches.third = createPlayoffMatch(l1, l2, '3rd Place Match');
-        } else { alert("Finish current playoff matches first."); }
+        } else {}
         render();
     }
 
@@ -467,7 +524,7 @@
         const wId = displayScoreT1 > displayScoreT2 ? match.t1.id : match.t2.id;
         const lId = displayScoreT1 > displayScoreT2 ? match.t2.id : match.t1.id;
         match.winnerId = wId; match.scoreT1 = displayScoreT1; match.scoreT2 = displayScoreT2;
-        if (phase === 'swiss') {
+        if (match.type === 'swiss') {
             const w = teams.find(t => t.id === wId);
             const l = teams.find(t => t.id === lId);
             w.wins++; l.losses++;
@@ -485,7 +542,7 @@
     function submitScoreUI(mId) {
         preserveInputs();
         const m = getMatchById(mId);
-        if (!m.veto || m.veto.history.length < 7) return alert("Please complete map veto first.");
+        if (!m.veto || m.veto.history.length < 7) return;
         const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
         let t1Wins = 0, t2Wins = 0;
         let mapScores = [];
@@ -494,13 +551,13 @@
             const s2El = document.getElementById(`s2_${mId}_${i}`);
             if (!s1El || !s2El || s1El.value === '' || s2El.value === '') continue;
             const s1 = parseInt(s1El.value), s2 = parseInt(s2El.value);
-            if (s1 === s2) return alert("Valorant matches cannot end in a tie.");
+            if (s1 === s2) return;
             mapScores.push({ map: playable[i].map, s1, s2 });
             if (s1 > s2) t1Wins++; else t2Wins++;
             if (m.veto.format === 'bo3' && (t1Wins === 2 || t2Wins === 2)) break;
         }
-        if (m.veto.format === 'bo1' && t1Wins + t2Wins < 1) return alert("Enter score for the map.");
-        if (m.veto.format === 'bo3' && t1Wins < 2 && t2Wins < 2) return alert("Enter enough scores to determine a BO3 winner.");
+        if (m.veto.format === 'bo1' && t1Wins + t2Wins < 1) return;
+        if (m.veto.format === 'bo3' && t1Wins < 2 && t2Wins < 2) return;
         m.mapScores = mapScores;
         const displayS1 = m.veto.format === 'bo1' ? mapScores[0].s1 : t1Wins;
         const displayS2 = m.veto.format === 'bo1' ? mapScores[0].s2 : t2Wins;
@@ -509,10 +566,8 @@
 
     function autoResolveMatches() {
         preserveInputs();
-        if (teams.length === 0) return alert("Please add teams and start the tournament first.");
-        if (currentRound === 0) return alert("Please start the Swiss Stage first.");
         let active = phase === 'swiss' ? matches.filter(m => !m.winnerId) : [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third].filter(m => m && !m.winnerId);
-        if (active.length === 0) return alert("Advance bracket or start the round first.");
+        if (active.length === 0) return;
         active.forEach(m => {
             let isBo3 = Math.random() > 0.5;
             if (phase === 'playoffs') isBo3 = true;
@@ -544,15 +599,27 @@
         render();
     }
 
-    function generateHoverTooltip(m) {
+    function generateTooltip(m, prefix = '', col = null) {
         if (!m || !m.winnerId || !m.mapScores || m.mapScores.length === 0) return '';
+        
+        let alignClass = '';
+        if (col === 1) alignClass = 'tooltip-right'; // Force tooltip to align strictly right on column 1
+        if (col === 6) alignClass = 'tooltip-left';  // Force tooltip to align strictly left on column 6
+        
         const mList = m.mapScores.map((ms, i) => `
-            <div class="flex justify-between items-center gap-4 md:gap-6 px-1 py-1 whitespace-nowrap">
+            <div class="flex justify-between items-center gap-4 md:gap-6 px-1 py-1 whitespace-nowrap border-b border-slate-700/50 last:border-0">
                 <span class="text-slate-300 font-bold uppercase text-[9px] md:text-[11px] w-12 md:w-20 text-left">Map ${i+1}</span>
                 <span class="text-slate-400 font-black uppercase text-[9px] md:text-[11px] w-16 md:w-24 text-center">${ms.map}</span>
                 <span class="font-mono text-emerald-400 font-black text-[10px] md:text-[12px] w-12 md:w-16 text-right">${ms.s1} - ${ms.s2}</span>
             </div>`).join('');
-        return `<div class="map-tooltip"><div class="text-[8px] md:text-[10px] font-black text-emerald-400 border-b border-slate-700 pb-1.5 mb-2 text-center tracking-widest uppercase shadow-md">Match Results</div><div class="flex flex-col gap-1">${mList}</div></div>`;
+        return `
+        <div id="tooltip_${prefix}${m.id}" class="map-tooltip ${alignClass}">
+            <div class="text-[8px] md:text-[10px] font-black text-emerald-400 border-b border-slate-700 pb-1.5 mb-2 flex justify-between items-center tracking-widest uppercase shadow-md">
+                <span>Match Results</span>
+                <button type="button" onclick="toggleTooltip(event, '${prefix}${m.id}')" class="close-btn text-slate-500 hover:text-red-400 ml-4 px-1 rounded bg-slate-800 transition-colors pointer-events-auto">✕</button>
+            </div>
+            <div class="flex flex-col gap-1">${mList}</div>
+        </div>`;
     }
 
     function render() {
@@ -587,16 +654,16 @@
         document.getElementById('standingsList').innerHTML = getSortedTeams().map((t, i) => `
             <div class="flex items-center justify-between p-2 md:p-3 border-l-2 ${t.status === 'qualified' ? 'qualified border-emerald-500' : (t.status === 'eliminated' ? 'eliminated border-red-500' : 'border-transparent')} hover:bg-slate-800/40">
                 <div class="flex items-center gap-2 md:gap-3 overflow-hidden"><span class="font-mono text-slate-500 text-[10px] md:text-xs w-3 md:w-4">${i + 1}.</span><div><p class="font-bold text-xs md:text-sm truncate ${t.status === 'qualified' ? 'text-emerald-400' : ''}">${t.name}</p></div></div>
-                <div class="text-right shrink-0 ml-1 md:ml-2"><div class="font-mono font-bold text-xs md:text-sm"><span class="${t.wins>0?'text-emerald-400':'text-slate-400'}">${t.wins}W</span> - <span class="${t.losses>0?'text-red-400':'text-slate-400'}">${t.losses}L</span></div><div class="text-[9px] md:text-[10px] text-slate-400 font-medium">Diff: <span class="${t.mapDiff>0?'text-emerald-500':(t.mapDiff<0?'text-red-500':'')}">${t.mapDiff>0?'+':''}${t.mapDiff}</span></div></div>
+                <div class="text-right shrink-0 ml-1 md:ml-2"><div class="font-mono font-bold text-xs md:text-sm"><span class="${t.wins>0?'text-emerald-400':'text-slate-400'}">${t.wins}W</span> - <span class="${t.losses>0?'text-red-400':'text-slate-400'}">${t.losses}L</span></div><div class="text-[9px] md:text-[10px] text-slate-400 font-medium">Diff: <span class="${t.roundDiff>0?'text-emerald-500':(t.roundDiff<0?'text-red-500':'')}">${t.roundDiff>0?'+':''}${t.roundDiff}</span></div></div>
             </div>`).join('');
     }
 
     function renderMatches() {
         const grid = document.getElementById('matchGrid');
         if (phase === 'swiss') {
-            const activeMatches = matches.filter(m => !m.winnerId);
+            const activeMatches = matches.filter(m => !m.winnerId && m.label === `Swiss Round ${currentRound}`);
             grid.innerHTML = activeMatches.length ? activeMatches.map(m => generateMatchCardHTML(m)).join('') : 
-                (teams.length ? `<div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-400 text-sm md:text-base">All Swiss matches complete.</div>` : `<div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-400 text-sm md:text-base">Awaiting Teams</div>`);
+                (teams.length ? `<div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-400 text-sm md:text-base">All matches in this round complete.</div>` : `<div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-400 text-sm md:text-base">Awaiting Teams</div>`);
         } else {
             let html = `<div class="col-span-full space-y-4 md:space-y-6">`;
             html += renderPlayoffTier('Quarterfinals', playoffMatches.qf);
@@ -629,30 +696,30 @@
 
         let controlUI = '';
         if (m.winnerId) {
-            controlUI = `<div class="flex items-center gap-2 md:gap-3"><span class="text-xl md:text-2xl font-black ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600 font-bold">-</span><span class="text-xl md:text-2xl font-black ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-1 md:mt-2 text-[9px] md:text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded shadow-inner">Match Finished</div>`;
+            controlUI = `<div class="flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-slate-800 p-2 rounded-lg transition-colors" onclick="toggleTooltip(event, 'grid_${m.id}')" title="Click to pin map scores"><span class="text-2xl md:text-3xl font-black ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600 font-bold">-</span><span class="text-2xl md:text-3xl font-black ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-1 md:mt-2 text-[9px] md:text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-3 py-1.5 rounded shadow-inner cursor-pointer hover:text-white transition-colors" onclick="toggleTooltip(event, 'grid_${m.id}')">Map Results</div>`;
         } else if (m.veto && m.veto.history.length === 7) {
             const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
             const inputs = playable.map((p, idx) => `
                 <div class="flex items-center justify-between gap-1 md:gap-2 w-full text-[9px] md:text-[10px] mb-1 md:mb-2">
-                    <span class="text-slate-400 w-10 md:w-14 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
-                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-10 md:w-14 bg-slate-800 border border-slate-600 rounded text-center py-1 md:py-1.5 text-xs md:text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
+                    <span class="text-slate-400 w-10 md:w-16 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
+                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-12 md:w-16 bg-slate-800 border border-slate-600 rounded text-center py-2 text-sm md:text-base font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
                     <span class="text-slate-600 font-bold">:</span>
-                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-10 md:w-14 bg-slate-800 border border-slate-600 rounded text-center py-1 md:py-1.5 text-xs md:text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
+                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-12 md:w-16 bg-slate-800 border border-slate-600 rounded text-center py-2 text-sm md:text-base font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
                 </div>
             `).join('');
-            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1 md:mt-2 bg-emerald-700 hover:bg-emerald-600 text-[10px] md:text-[11px] font-bold px-2 md:px-4 py-1.5 md:py-2 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Match</button>`;
+            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-2 md:mt-3 bg-emerald-700 hover:bg-emerald-600 text-[10px] md:text-[11px] font-bold px-4 py-2 md:py-2.5 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Match</button>`;
         } else {
-            controlUI = `<div class="text-[10px] md:text-[11px] text-slate-400 text-center mb-2 md:mb-3 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[10px] md:text-[11px] font-bold text-white px-3 md:px-4 py-1.5 md:py-2 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
+            controlUI = `<div class="text-[10px] md:text-[11px] text-slate-400 text-center mb-2 md:mb-3 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[11px] md:text-[12px] font-bold text-white px-4 py-2 md:py-2.5 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
         }
 
         return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-3 md:p-5 rounded-xl shadow-xl relative overflow-visible group">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-xl bg-gradient-to-r ${accent} opacity-75"></div>
             <div class="text-[9px] md:text-[11px] text-center text-slate-400 font-bold mb-3 md:mb-4 uppercase tracking-widest">${m.label}</div>
             <div class="flex items-center justify-between gap-3 md:gap-6 flex-wrap md:flex-nowrap">
-                <div class="w-full md:flex-1 text-center md:text-right truncate font-bold text-base md:text-lg ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
-                <div class="flex flex-col items-center shrink-0 w-full md:w-44 order-last md:order-none mt-2 md:mt-0">${controlUI}</div>
-                <div class="w-full md:flex-1 text-center md:text-left truncate font-bold text-base md:text-lg ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}">${m.t2.name}</div>
-            </div>${generateHoverTooltip(m)}</div>`;
+                <div class="w-full md:flex-1 text-center md:text-right truncate font-bold text-base md:text-lg ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name} <span class="text-[9px] md:text-[10px] text-slate-500 font-mono hidden md:inline ml-2">${(m.t1.tag || m.t1.name.substring(0,3)).toUpperCase()}</span></div>
+                <div class="flex flex-col items-center shrink-0 w-full md:w-52 order-last md:order-none mt-2 md:mt-0">${controlUI}</div>
+                <div class="w-full md:flex-1 text-center md:text-left truncate font-bold text-base md:text-lg ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}"><span class="text-[9px] md:text-[10px] text-slate-500 font-mono hidden md:inline mr-2">${(m.t2.tag || m.t2.name.substring(0,3)).toUpperCase()}</span> ${m.t2.name}</div>
+            </div>${generateTooltip(m, 'grid_')}</div>`;
     }
 
     function getPos(col, row) { return { x: `${(col - 0.5) * (100 / 6)}%`, y: `${(row - 0.5) * (100 / 7)}%` }; }
@@ -732,12 +799,13 @@
                             }
                         }
 
+                        // Passing b.c ensures tooltips on edge columns correctly align themselves
                         return `
-                        <div class="flex items-center justify-between py-0.5 sm:py-1 lg:py-[6px] px-1 lg:px-2 bg-[#111827]/90 rounded mb-1 lg:mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10 group cursor-default">
-                            <span class="w-8 sm:w-10 lg:w-14 truncate text-right text-[8px] sm:text-[10px] lg:text-[12px] ${w1Class}" title="${m.t1.name}">${m.t1.name.substring(0,3).toUpperCase()}</span>
+                        <div class="flex items-center justify-between py-0.5 sm:py-1 lg:py-[6px] px-1 lg:px-2 bg-[#111827]/90 rounded mb-1 lg:mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10 group ${isPlayed ? 'cursor-pointer' : 'cursor-default'}" ${isPlayed ? `onclick="toggleTooltip(event, 'viz_${m.id}')"` : ''}>
+                            <span class="w-8 sm:w-10 lg:w-14 truncate text-right text-[8px] sm:text-[10px] lg:text-[12px] ${w1Class}" title="${m.t1.name}">${(m.t1.tag || m.t1.name.substring(0,3)).toUpperCase()}</span>
                             <span class="text-[8px] sm:text-[10px] lg:text-[12px] mx-1 lg:mx-2 tracking-widest ${scoreClass}">${displayScore}</span>
-                            <span class="w-8 sm:w-10 lg:w-14 truncate text-left text-[8px] sm:text-[10px] lg:text-[12px] ${w2Class}" title="${m.t2.name}">${m.t2.name.substring(0,3).toUpperCase()}</span>
-                            ${generateHoverTooltip(m)}
+                            <span class="w-8 sm:w-10 lg:w-14 truncate text-left text-[8px] sm:text-[10px] lg:text-[12px] ${w2Class}" title="${m.t2.name}">${(m.t2.tag || m.t2.name.substring(0,3)).toUpperCase()}</span>
+                            ${generateTooltip(m, 'viz_', b.c)}
                         </div>`;
                     }).join('');
 
@@ -766,7 +834,7 @@
                 if(!m) return `<div class="bracket-match border-dashed border-slate-700 bg-transparent text-slate-600 text-center italic py-3 md:py-4">TBD</div>`;
                 const t1Class = m.winnerId === m.t1.id ? 'winner' : (m.winnerId ? 'text-slate-500' : 'text-slate-300');
                 const t2Class = m.winnerId === m.t2.id ? 'winner' : (m.winnerId ? 'text-slate-500' : 'text-slate-300');
-                return `<div class="bracket-match group hover:border-slate-500 transition-colors"><div class="text-[8px] md:text-[9px] text-slate-500 uppercase tracking-wider mb-1 px-1">${m.label}</div><div class="bracket-team ${t1Class}"><span class="truncate pr-2 text-xs md:text-sm">${m.t1.name}</span><span class="font-bold text-xs md:text-sm">${m.scoreT1!==0||m.winnerId?m.scoreT1:'-'}</span></div><div class="border-t border-slate-700 my-0.5"></div><div class="bracket-team ${t2Class}"><span class="truncate pr-2 text-xs md:text-sm">${m.t2.name}</span><span class="font-bold text-xs md:text-sm">${m.scoreT2!==0||m.winnerId?m.scoreT2:'-'}</span></div>${generateHoverTooltip(m)}</div>`;
+                return `<div class="bracket-match relative hover:border-slate-500 transition-colors ${m.winnerId ? 'cursor-pointer hover:bg-slate-700/50 group' : ''}" ${m.winnerId ? `onclick="toggleTooltip(event, 'viz_${m.id}')"` : ''}><div class="text-[8px] md:text-[9px] text-slate-500 uppercase tracking-wider mb-1 px-1">${m.label}</div><div class="bracket-team ${t1Class}"><span class="truncate pr-2 text-xs md:text-sm" title="${m.t1.name}">${(m.t1.tag || m.t1.name.substring(0,3)).toUpperCase()}</span><span class="font-bold text-xs md:text-sm">${m.scoreT1!==0||m.winnerId?m.scoreT1:'-'}</span></div><div class="border-t border-slate-700 my-0.5"></div><div class="bracket-team ${t2Class}"><span class="truncate pr-2 text-xs md:text-sm" title="${m.t2.name}">${(m.t2.tag || m.t2.name.substring(0,3)).toUpperCase()}</span><span class="font-bold text-xs md:text-sm">${m.scoreT2!==0||m.winnerId?m.scoreT2:'-'}</span></div>${generateTooltip(m, 'viz_')}</div>`;
             };
 
             let podiumHtml = '';
