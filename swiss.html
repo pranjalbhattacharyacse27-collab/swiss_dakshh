@@ -8,19 +8,29 @@
     <style>
         .qualified { @apply bg-emerald-900/40 border-emerald-500/50 text-emerald-100; }
         .eliminated { @apply bg-red-900/40 border-red-500/50 text-red-200 opacity-60; }
+        
         .viz-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
         .viz-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.8); border-radius: 8px; }
         .viz-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; border: 2px solid rgba(15, 23, 42, 0.8); }
         .viz-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
         .bracket-col { display: flex; flex-direction: column; justify-content: space-around; gap: 1rem; }
         .bracket-match { @apply bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm w-48 shadow-lg z-10 relative; }
         .bracket-team { @apply flex justify-between items-center py-1 px-2 rounded; }
         .bracket-team.winner { @apply font-bold text-emerald-400 bg-slate-700/50; }
+
         @keyframes fadeInLine { from { opacity: 0; } to { opacity: 0.35; } }
-        .flow-line-win { stroke: #22c55e; stroke-width: 2.5; stroke-dasharray: 6 6; animation: fadeInLine 0.5s ease-out forwards, flowWin 1s linear infinite; }
-        .flow-line-loss { stroke: #ef4444; stroke-width: 2.5; stroke-dasharray: 6 6; animation: fadeInLine 0.5s ease-out forwards, flowLoss 1s linear infinite; }
+        .flow-line-win {
+            stroke: #22c55e; stroke-width: 2.5; stroke-dasharray: 6 6;
+            animation: fadeInLine 0.5s ease-out forwards, flowWin 1s linear infinite;
+        }
+        .flow-line-loss {
+            stroke: #ef4444; stroke-width: 2.5; stroke-dasharray: 6 6;
+            animation: fadeInLine 0.5s ease-out forwards, flowLoss 1s linear infinite;
+        }
         @keyframes flowWin { to { stroke-dashoffset: -12; } }
         @keyframes flowLoss { to { stroke-dashoffset: -12; } }
+
         @keyframes riseUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .podium-step { animation: riseUp 0.8s ease-out forwards; }
     </style>
@@ -324,7 +334,10 @@
         }
         
         document.getElementById('vetoMapsGrid').innerHTML = VALORANT_MAPS.map(map => {
-            const hItem = v.history.find(h => h.map === map);
+            const hIndex = v.history.findIndex(h => h.map === map);
+            const hItem = hIndex !== -1 ? v.history[hIndex] : null;
+            const stepNum = hItem ? `<div class="absolute top-1 left-2 text-[12px] font-black text-slate-400 z-20">#${hIndex + 1}</div>` : '';
+            
             let bClass = "h-28 flex items-center justify-center rounded-xl border-2 font-black text-xl uppercase tracking-widest transition-all relative overflow-hidden ";
             let overlay = "";
             if (!hItem) {
@@ -341,7 +354,7 @@
                 bClass += "border-yellow-500 bg-yellow-900/40 text-yellow-400 cursor-not-allowed shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02]";
                 overlay = `<div class="absolute bottom-1 bg-yellow-900/80 px-2 rounded text-[10px] text-yellow-300 border border-yellow-500/50 tracking-widest">DECIDER</div>`;
             }
-            return `<div onclick="handleMapClick(event, '${map}')" class="${bClass}"><span class="z-10 drop-shadow-md">${map}</span>${overlay}</div>`;
+            return `<div onclick="handleMapClick(event, '${map}')" class="${bClass}">${stepNum}<span class="z-10 drop-shadow-md">${map}</span>${overlay}</div>`;
         }).join('');
     }
 
@@ -518,10 +531,13 @@
         const accent = isPlayoff ? 'from-yellow-600 to-orange-500' : 'from-blue-500 to-emerald-500';
         let vetoUI = '';
         if (m.veto && m.veto.history.length === 7) {
+            let pickCount = 1;
             const picks = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
             vetoUI = `<div class="mt-2 flex gap-1 justify-center flex-wrap">` + picks.map(p => {
-                const color = p.action === 'decider' ? 'text-yellow-400 border-yellow-500/50 bg-yellow-900/20' : 'text-emerald-400 border-emerald-500/50 bg-emerald-900/20';
-                return `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${color}">${p.map.toUpperCase()}</span>`;
+                const isDec = p.action === 'decider';
+                const color = isDec ? 'text-yellow-400 border-yellow-500/50 bg-yellow-900/20' : 'text-emerald-400 border-emerald-500/50 bg-emerald-900/20';
+                const prefix = isDec ? (m.veto.format === 'bo1' ? 'MAP' : 'DEC') : `M${pickCount++}`;
+                return `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${color}"><span class="opacity-70">${prefix}</span> ${p.map.toUpperCase()}</span>`;
             }).join('') + `</div>`;
         } else if (m.veto && m.veto.history.length > 0) {
             vetoUI = `<div class="mt-2 text-[9px] text-center text-slate-500 uppercase font-bold tracking-widest">Veto in progress...</div>`;
