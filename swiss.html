@@ -32,7 +32,6 @@
         }
         .group:hover .map-tooltip { opacity: 1; visibility: visible; bottom: 120%; }
         .bracket-match.group:hover .map-tooltip { bottom: 100%; }
-        
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -43,111 +42,113 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 font-sans selection:bg-emerald-500/30">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-2 md:p-4 font-sans selection:bg-emerald-500/30">
 
-<div class="max-w-[1600px] mx-auto space-y-6">
-    <header class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-slate-800 pb-6">
+<div class="max-w-[1600px] mx-auto space-y-4 md:space-y-6">
+    <header class="flex flex-col xl:flex-row justify-between items-center xl:items-end gap-4 border-b border-slate-800 pb-4 md:pb-6 text-center xl:text-left">
         <div>
-            <h1 class="text-3xl font-black tracking-tighter text-white leading-none">
+            <h1 class="text-2xl md:text-3xl font-black tracking-tighter text-white leading-none">
                 DAKSHH <span class="text-emerald-500">VALORANT TOURNAMENT</span>
             </h1>
-            <p class="text-slate-400 text-sm mt-2 font-medium">
+            <p class="text-slate-400 text-xs md:text-sm mt-2 font-medium">
                 Swiss & Playoffs Engine • Map Veto System • Hover Map Scores
             </p>
         </div>
-        <div class="flex gap-3 items-center flex-wrap justify-end">
+        <div class="flex gap-2 flex-wrap justify-center xl:justify-end w-full xl:w-auto">
             <input type="file" id="loadInput" accept=".json" class="hidden" onchange="loadTournament(event)">
-            <button type="button" onclick="document.getElementById('loadInput').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition-all text-slate-300 shadow-md">📂 Load</button>
-            <button type="button" onclick="saveTournament()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition-all text-slate-300 shadow-md mr-4">💾 Save</button>
-            <button type="button" onclick="generateRandomTeams()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg text-sm font-bold transition-all text-blue-400">+ Add 16 Teams</button>
-            <button type="button" onclick="autoResolveMatches()" class="bg-purple-900/40 hover:bg-purple-800 border border-purple-600 px-4 py-2 rounded-lg text-sm font-bold transition-all text-purple-300 shadow-[0_0_15px_rgba(147,51,234,0.3)]">⚡ Auto-Resolve</button>
-            <button type="button" id="mainActionBtn" onclick="advanceTournament()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] active:scale-95 text-white">START SWISS STAGE</button>
+            <button type="button" onclick="document.getElementById('loadInput').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-xs md:text-sm transition-all text-slate-300 shadow-md flex-1 xl:flex-none">📂 Load</button>
+            <button type="button" onclick="saveTournament()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-xs md:text-sm transition-all text-slate-300 shadow-md flex-1 xl:flex-none">💾 Save</button>
+            <button type="button" onclick="generateRandomTeams()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition-all text-blue-400 flex-1 xl:flex-none">+ 16 Teams</button>
+            <button type="button" onclick="autoResolveMatches()" class="bg-purple-900/40 hover:bg-purple-800 border border-purple-600 px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition-all text-purple-300 shadow-[0_0_15px_rgba(147,51,234,0.3)] w-full sm:w-auto xl:flex-none">⚡ Auto-Resolve</button>
+            <button type="button" id="mainActionBtn" onclick="advanceTournament()" class="bg-emerald-600 hover:bg-emerald-500 px-4 md:px-8 py-2 md:py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] active:scale-95 text-white w-full sm:w-auto xl:flex-none text-sm md:text-base">START SWISS STAGE</button>
         </div>
     </header>
 
-    <section class="bg-[#0b0f19] p-2 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
+    <section class="bg-[#0b0f19] p-1 md:p-2 rounded-2xl md:rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-red-900/10 via-transparent to-green-900/10 pointer-events-none"></div>
-        <div class="flex justify-between items-center px-6 py-4 relative z-20">
-            <h2 class="text-lg font-black text-slate-200 uppercase tracking-widest flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row justify-between items-center px-4 md:px-6 py-3 md:py-4 relative z-20 gap-3">
+            <h2 class="text-sm md:text-lg font-black text-slate-200 uppercase tracking-widest flex items-center gap-2 md:gap-3">
                 DAKSHH 2026 
-                <span id="vizPhaseTag" class="text-emerald-400 bg-emerald-900/30 border border-emerald-500/30 px-3 py-1 rounded-full text-xs shadow-[0_0_10px_rgba(16,185,129,0.2)]">SWISS STAGE</span>
+                <span id="vizPhaseTag" class="text-emerald-400 bg-emerald-900/30 border border-emerald-500/30 px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs shadow-[0_0_10px_rgba(16,185,129,0.2)]">SWISS STAGE</span>
             </h2>
             <div id="viewToggle" class="hidden flex bg-slate-800 p-1 rounded-lg border border-slate-700 shadow-md">
-                <button type="button" id="btnViewSwiss" onclick="setViewPhase('swiss')" class="px-4 py-1 rounded text-xs font-bold transition-all">SWISS</button>
-                <button type="button" id="btnViewPlayoffs" onclick="setViewPhase('playoffs')" class="px-4 py-1 rounded text-xs font-bold transition-all">PLAYOFFS</button>
+                <button type="button" id="btnViewSwiss" onclick="setViewPhase('swiss')" class="px-3 md:px-4 py-1 rounded text-[10px] md:text-xs font-bold transition-all">SWISS</button>
+                <button type="button" id="btnViewPlayoffs" onclick="setViewPhase('playoffs')" class="px-3 md:px-4 py-1 rounded text-[10px] md:text-xs font-bold transition-all">PLAYOFFS</button>
             </div>
         </div>
-        <div id="visualizerContainer" class="viz-scroll overflow-x-auto overflow-y-auto pb-8 pt-2 flex gap-8 items-stretch min-h-[500px] relative z-10 w-full" style="overflow: visible;">
-            <div class="m-auto text-slate-600 italic font-medium">Add 16 teams and start the tournament to view the bracket.</div>
+        <div id="visualizerContainer" class="viz-scroll overflow-x-auto overflow-y-auto pb-6 md:pb-8 pt-2 flex gap-4 md:gap-8 items-stretch min-h-[400px] md:min-h-[500px] relative z-10 w-full" style="overflow: visible;">
+            <div class="m-auto text-slate-600 italic font-medium text-sm">Add 16 teams and start the tournament to view the bracket.</div>
         </div>
     </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div class="lg:col-span-4 space-y-6 sticky top-6">
-            <section id="entrySection" class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
-                <div class="flex gap-2">
-                    <input id="tName" type="text" placeholder="Team Name" class="flex-[2] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-emerald-500 text-sm font-medium">
-                    <input id="tBias" type="number" placeholder="Seed" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none w-20 text-sm">
-                    <button type="button" onclick="addTeam()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold text-sm">Add</button>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-start">
+        <div class="lg:col-span-4 space-y-4 md:space-y-6">
+            <section id="entrySection" class="bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-800 shadow-xl">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input id="tName" type="text" placeholder="Team Name" class="flex-[2] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-emerald-500 text-xs md:text-sm font-medium w-full">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <input id="tBias" type="number" placeholder="Seed" class="flex-1 sm:w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 outline-none text-xs md:text-sm">
+                        <button type="button" onclick="addTeam()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold text-xs md:text-sm whitespace-nowrap">Add</button>
+                    </div>
                 </div>
             </section>
             <section class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-                <div class="p-3 bg-slate-800/80 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 flex justify-between">
+                <div class="p-3 bg-slate-800/80 text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700/50 flex justify-between">
                     <span>Rank & Team</span>
                     <span class="mr-2">W-L | Map Diff</span>
                 </div>
-                <div id="standingsList" class="divide-y divide-slate-800/50 max-h-[600px] overflow-y-auto viz-scroll"></div>
+                <div id="standingsList" class="divide-y divide-slate-800/50 max-h-[400px] md:max-h-[600px] overflow-y-auto viz-scroll"></div>
             </section>
         </div>
 
-        <div class="lg:col-span-8 space-y-6">
-            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-md">
+        <div class="lg:col-span-8 space-y-4 md:space-y-6">
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row justify-between items-center shadow-md text-center sm:text-left gap-2">
                 <div>
-                    <span id="phaseTag" class="text-xs font-bold uppercase tracking-widest text-emerald-500">Swiss Stage</span>
-                    <h2 id="roundDisplay" class="text-2xl font-black mt-1">Setup Phase</h2>
+                    <span id="phaseTag" class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-emerald-500">Swiss Stage</span>
+                    <h2 id="roundDisplay" class="text-xl md:text-2xl font-black mt-1">Setup Phase</h2>
                 </div>
             </div>
-            <div id="matchGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full p-12 text-center border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-slate-500">Awaiting Teams</div>
+            <div id="matchGrid" class="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4">
+                <div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-500 text-sm md:text-base">Awaiting Teams</div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="vetoModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden transform transition-all">
-        <div class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center">
-            <h3 class="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
-                Map Veto System <span class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 text-[10px] px-2 py-0.5 rounded shadow-[0_0_10px_rgba(16,185,129,0.3)]">LIVE</span>
+<div id="vetoModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+        <div class="bg-slate-800 p-3 md:p-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+            <h3 class="text-base md:text-xl font-black text-white uppercase tracking-widest flex items-center gap-2 md:gap-3">
+                Map Veto <span class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 text-[9px] md:text-[10px] px-2 py-0.5 rounded shadow-[0_0_10px_rgba(16,185,129,0.3)]">LIVE</span>
             </h3>
-            <button type="button" onclick="closeVetoModal()" class="text-slate-400 hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <button type="button" onclick="closeVetoModal()" class="text-slate-400 hover:text-white transition-colors p-1">
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
         
-        <div class="p-6 bg-[#0b0f19] flex flex-col gap-6">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="flex items-center gap-4 text-2xl font-black uppercase">
-                    <span id="vetoTeam1" class="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]">Team A</span>
-                    <span class="text-slate-600 text-sm">VS</span>
-                    <span id="vetoTeam2" class="text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.5)]">Team B</span>
+        <div class="p-3 md:p-6 bg-[#0b0f19] flex flex-col gap-4 md:gap-6 overflow-y-auto viz-scroll">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 md:gap-4">
+                <div class="flex items-center gap-2 md:gap-4 text-lg md:text-2xl font-black uppercase text-center w-full sm:w-auto justify-center">
+                    <span id="vetoTeam1" class="text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.5)] truncate max-w-[120px] sm:max-w-[200px]">Team A</span>
+                    <span class="text-slate-600 text-xs md:text-sm">VS</span>
+                    <span id="vetoTeam2" class="text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.5)] truncate max-w-[120px] sm:max-w-[200px]">Team B</span>
                 </div>
-                <div class="flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                    <button type="button" id="btnBo1" onclick="setVetoFormat('bo1')" class="px-5 py-1.5 rounded font-bold text-sm transition-all">BO1</button>
-                    <button type="button" id="btnBo3" onclick="setVetoFormat('bo3')" class="px-5 py-1.5 rounded font-bold text-sm transition-all">BO3</button>
+                <div class="flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 w-full sm:w-auto justify-center">
+                    <button type="button" id="btnBo1" onclick="setVetoFormat('bo1')" class="px-4 md:px-5 py-1.5 rounded font-bold text-xs md:text-sm transition-all flex-1 sm:flex-none">BO1</button>
+                    <button type="button" id="btnBo3" onclick="setVetoFormat('bo3')" class="px-4 md:px-5 py-1.5 rounded font-bold text-xs md:text-sm transition-all flex-1 sm:flex-none">BO3</button>
                 </div>
             </div>
             
-            <div id="vetoStatus" class="text-center text-xl bg-slate-800/80 py-3 rounded-lg border border-slate-700 shadow-inner font-black uppercase tracking-widest"></div>
-            <div id="vetoMapsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            <div id="vetoStatus" class="text-center text-sm md:text-xl bg-slate-800/80 py-2 md:py-3 rounded-lg border border-slate-700 shadow-inner font-black uppercase tracking-widest px-2"></div>
+            <div id="vetoMapsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4"></div>
         </div>
 
-        <div class="bg-slate-800 p-4 border-t border-slate-700 flex justify-between items-center">
-            <button type="button" onclick="resetVeto()" class="text-red-400 hover:text-red-300 font-bold text-sm flex items-center gap-1 bg-red-900/20 px-4 py-2 rounded border border-red-500/30 transition-colors">
+        <div class="bg-slate-800 p-3 md:p-4 border-t border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
+            <button type="button" onclick="resetVeto()" class="text-red-400 hover:text-red-300 font-bold text-xs md:text-sm flex items-center justify-center gap-1 bg-red-900/20 px-4 py-2 rounded border border-red-500/30 transition-colors w-full sm:w-auto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 Reset Veto
             </button>
-            <button type="button" onclick="closeVetoModal()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-2.5 rounded-lg text-white font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+            <button type="button" onclick="closeVetoModal()" class="bg-emerald-600 hover:bg-emerald-500 px-6 md:px-8 py-2 md:py-2.5 rounded-lg text-white font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] text-xs md:text-sm w-full sm:w-auto">
                 Close & Return
             </button>
         </div>
@@ -350,8 +351,8 @@
         document.getElementById('vetoTeam2').innerText = match.t2.name;
         const bo1Btn = document.getElementById('btnBo1');
         const bo3Btn = document.getElementById('btnBo3');
-        bo1Btn.className = v.format === 'bo1' ? 'px-5 py-1.5 bg-blue-600 rounded text-white font-black text-sm shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-5 py-1.5 hover:bg-slate-700 rounded text-slate-400 font-bold text-sm';
-        bo3Btn.className = v.format === 'bo3' ? 'px-5 py-1.5 bg-blue-600 rounded text-white font-black text-sm shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-5 py-1.5 hover:bg-slate-700 rounded text-slate-400 font-bold text-sm';
+        bo1Btn.className = v.format === 'bo1' ? 'px-4 md:px-5 py-1.5 bg-blue-600 rounded text-white font-black text-xs md:text-sm shadow-[0_0_10px_rgba(37,99,235,0.5)] flex-1 sm:flex-none' : 'px-4 md:px-5 py-1.5 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs md:text-sm flex-1 sm:flex-none';
+        bo3Btn.className = v.format === 'bo3' ? 'px-4 md:px-5 py-1.5 bg-blue-600 rounded text-white font-black text-xs md:text-sm shadow-[0_0_10px_rgba(37,99,235,0.5)] flex-1 sm:flex-none' : 'px-4 md:px-5 py-1.5 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs md:text-sm flex-1 sm:flex-none';
         
         const statusEl = document.getElementById('vetoStatus');
         if (v.history.length < 7) {
@@ -366,23 +367,23 @@
         document.getElementById('vetoMapsGrid').innerHTML = VALORANT_MAPS.map(map => {
             const hIndex = v.history.findIndex(h => h.map === map);
             const hItem = hIndex !== -1 ? v.history[hIndex] : null;
-            const stepNum = hItem ? `<div class="absolute top-2 left-3 text-sm font-black text-slate-100 z-20 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">#${hIndex + 1}</div>` : '';
+            const stepNum = hItem ? `<div class="absolute top-2 left-2 md:left-3 text-xs md:text-sm font-black text-slate-100 z-20 drop-shadow-[0_2px_2px_rgba(0,0,0,1)]">#${hIndex + 1}</div>` : '';
             
-            let bClass = "group h-32 flex items-center justify-center rounded-xl border-2 font-black text-2xl uppercase tracking-widest transition-all relative overflow-hidden ";
+            let bClass = "group h-24 md:h-32 flex items-center justify-center rounded-xl border-2 font-black text-base md:text-2xl uppercase tracking-widest transition-all relative overflow-hidden ";
             let overlay = "";
             if (!hItem) {
                 bClass += "border-slate-700 bg-slate-900 text-slate-300 hover:border-blue-500 hover:text-white hover:scale-[1.02] cursor-pointer shadow-lg";
             } else if (hItem.action === 'ban') {
                 const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
                 bClass += "border-red-600/50 bg-slate-900 text-red-500 opacity-60 cursor-not-allowed";
-                overlay = `<div class="absolute inset-0 flex items-center justify-center z-20"><div class="w-[120%] h-1 bg-red-600 rotate-[20deg] opacity-70"></div></div><div class="absolute bottom-2 bg-red-900/90 px-2 py-0.5 rounded text-xs text-red-100 border border-red-500/50 z-20 drop-shadow-md">BANNED: ${bName}</div>`;
+                overlay = `<div class="absolute inset-0 flex items-center justify-center z-20"><div class="w-[120%] h-1 bg-red-600 rotate-[20deg] opacity-70"></div></div><div class="absolute bottom-1 md:bottom-2 bg-red-900/90 px-2 py-0.5 rounded text-[9px] md:text-xs text-red-100 border border-red-500/50 z-20 drop-shadow-md">BANNED: ${bName}</div>`;
             } else if (hItem.action === 'pick') {
                 const bName = hItem.by === match.t1.id ? match.t1.name.substring(0,3) : match.t2.name.substring(0,3);
                 bClass += "border-emerald-500 bg-slate-900 text-emerald-400 cursor-not-allowed shadow-[0_0_20px_rgba(16,185,129,0.3)]";
-                overlay = `<div class="absolute bottom-2 bg-emerald-900/90 px-2 py-0.5 rounded text-xs text-emerald-100 border border-emerald-500/50 z-20 drop-shadow-md">PICKED: ${bName}</div>`;
+                overlay = `<div class="absolute bottom-1 md:bottom-2 bg-emerald-900/90 px-2 py-0.5 rounded text-[9px] md:text-xs text-emerald-100 border border-emerald-500/50 z-20 drop-shadow-md">PICKED: ${bName}</div>`;
             } else if (hItem.action === 'decider') {
                 bClass += "border-yellow-500 bg-slate-900 text-yellow-400 cursor-not-allowed shadow-[0_0_20px_rgba(234,179,8,0.3)] scale-[1.02]";
-                overlay = `<div class="absolute bottom-2 bg-yellow-900/90 px-2 py-0.5 rounded text-xs text-yellow-100 border border-yellow-500/50 tracking-widest z-20 drop-shadow-md">DECIDER</div>`;
+                overlay = `<div class="absolute bottom-1 md:bottom-2 bg-yellow-900/90 px-2 py-0.5 rounded text-[9px] md:text-xs text-yellow-100 border border-yellow-500/50 tracking-widest z-20 drop-shadow-md">DECIDER</div>`;
             }
 
             const mapBg = MAP_IMAGES[map] || '';
@@ -542,12 +543,12 @@
     function generateHoverTooltip(m) {
         if (!m || !m.winnerId || !m.mapScores || m.mapScores.length === 0) return '';
         const mList = m.mapScores.map((ms, i) => `
-            <div class="flex justify-between items-center gap-6 px-1 py-1 whitespace-nowrap">
-                <span class="text-slate-300 font-bold uppercase text-[11px] w-20 text-left">Map ${i+1}</span>
-                <span class="text-slate-400 font-black uppercase text-[11px] w-24 text-center">${ms.map}</span>
-                <span class="font-mono text-emerald-400 font-black text-[12px] w-16 text-right">${ms.s1} - ${ms.s2}</span>
+            <div class="flex justify-between items-center gap-4 md:gap-6 px-1 py-1 whitespace-nowrap">
+                <span class="text-slate-300 font-bold uppercase text-[9px] md:text-[11px] w-12 md:w-20 text-left">Map ${i+1}</span>
+                <span class="text-slate-400 font-black uppercase text-[9px] md:text-[11px] w-16 md:w-24 text-center">${ms.map}</span>
+                <span class="font-mono text-emerald-400 font-black text-[10px] md:text-[12px] w-12 md:w-16 text-right">${ms.s1} - ${ms.s2}</span>
             </div>`).join('');
-        return `<div class="map-tooltip"><div class="text-[10px] font-black text-emerald-400 border-b border-slate-700 pb-1.5 mb-2 text-center tracking-widest uppercase shadow-md">Match Results</div><div class="flex flex-col gap-1">${mList}</div></div>`;
+        return `<div class="map-tooltip"><div class="text-[8px] md:text-[10px] font-black text-emerald-400 border-b border-slate-700 pb-1.5 mb-2 text-center tracking-widest uppercase shadow-md">Match Results</div><div class="flex flex-col gap-1">${mList}</div></div>`;
     }
 
     function render() {
@@ -556,8 +557,8 @@
         document.getElementById('vizPhaseTag').innerText = viewPhase === 'swiss' ? "SWISS STAGE" : "CHAMPIONS STAGE";
         if (phase === 'playoffs') {
             document.getElementById('viewToggle').classList.remove('hidden');
-            document.getElementById('btnViewSwiss').className = viewPhase === 'swiss' ? 'px-4 py-1 bg-blue-600 rounded text-white font-bold text-xs shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-4 py-1 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs transition-all';
-            document.getElementById('btnViewPlayoffs').className = viewPhase === 'playoffs' ? 'px-4 py-1 bg-blue-600 rounded text-white font-bold text-xs shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-4 py-1 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs transition-all';
+            document.getElementById('btnViewSwiss').className = viewPhase === 'swiss' ? 'px-3 md:px-4 py-1 bg-blue-600 rounded text-white font-bold text-[10px] md:text-xs shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-3 md:px-4 py-1 hover:bg-slate-700 rounded text-slate-400 font-bold text-[10px] md:text-xs transition-all';
+            document.getElementById('btnViewPlayoffs').className = viewPhase === 'playoffs' ? 'px-3 md:px-4 py-1 bg-blue-600 rounded text-white font-bold text-[10px] md:text-xs shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-3 md:px-4 py-1 hover:bg-slate-700 rounded text-slate-400 font-bold text-[10px] md:text-xs transition-all';
         } else {
             document.getElementById('viewToggle').classList.add('hidden');
         }
@@ -567,22 +568,22 @@
             document.getElementById('roundDisplay').innerText = currentRound === 0 ? "Setup Phase" : `Round ${currentRound}`;
             const activeTeams = teams.filter(t => t.status === 'active');
             if (activeTeams.length === 0 && teams.length > 0) {
-                btn.innerText = "START CHAMPIONS STAGE"; btn.className = "bg-yellow-600 hover:bg-yellow-500 px-8 py-3 rounded-xl font-bold text-white shadow-[0_0_20px_rgba(202,138,4,0.4)]";
+                btn.innerText = "START CHAMPIONS STAGE"; btn.className = "bg-yellow-600 hover:bg-yellow-500 px-4 md:px-8 py-2 md:py-3 rounded-xl font-bold text-white shadow-[0_0_20px_rgba(202,138,4,0.4)] text-sm md:text-base w-full sm:w-auto";
             } else { btn.innerText = "START NEXT ROUND"; }
         } else {
             document.getElementById('phaseTag').innerText = "Champions Stage";
-            document.getElementById('phaseTag').className = "text-xs font-bold uppercase tracking-widest text-yellow-500";
+            document.getElementById('phaseTag').className = "text-[10px] md:text-xs font-bold uppercase tracking-widest text-yellow-500";
             document.getElementById('roundDisplay').innerText = "Knockout Playoffs";
-            btn.innerText = "ADVANCE BRACKET"; btn.className = "bg-yellow-600 hover:bg-yellow-500 px-8 py-3 rounded-xl font-bold text-white shadow-[0_0_20px_rgba(202,138,4,0.4)]";
+            btn.innerText = "ADVANCE BRACKET"; btn.className = "bg-yellow-600 hover:bg-yellow-500 px-4 md:px-8 py-2 md:py-3 rounded-xl font-bold text-white shadow-[0_0_20px_rgba(202,138,4,0.4)] text-sm md:text-base w-full sm:w-auto";
         }
         renderStandings(); renderMatches(); renderVisualizer();
     }
 
     function renderStandings() {
         document.getElementById('standingsList').innerHTML = getSortedTeams().map((t, i) => `
-            <div class="flex items-center justify-between p-3 border-l-2 ${t.status === 'qualified' ? 'qualified border-emerald-500' : (t.status === 'eliminated' ? 'eliminated border-red-500' : 'border-transparent')} hover:bg-slate-800/40">
-                <div class="flex items-center gap-3 overflow-hidden"><span class="font-mono text-slate-500 text-xs w-4">${i + 1}.</span><div><p class="font-bold text-sm truncate ${t.status === 'qualified' ? 'text-emerald-400' : ''}">${t.name}</p></div></div>
-                <div class="text-right shrink-0 ml-2"><div class="font-mono font-bold text-sm"><span class="${t.wins>0?'text-emerald-400':'text-slate-400'}">${t.wins}W</span> - <span class="${t.losses>0?'text-red-400':'text-slate-400'}">${t.losses}L</span></div><div class="text-[10px] text-slate-400 font-medium">Diff: <span class="${t.mapDiff>0?'text-emerald-500':(t.mapDiff<0?'text-red-500':'')}">${t.mapDiff>0?'+':''}${t.mapDiff}</span></div></div>
+            <div class="flex items-center justify-between p-2 md:p-3 border-l-2 ${t.status === 'qualified' ? 'qualified border-emerald-500' : (t.status === 'eliminated' ? 'eliminated border-red-500' : 'border-transparent')} hover:bg-slate-800/40">
+                <div class="flex items-center gap-2 md:gap-3 overflow-hidden"><span class="font-mono text-slate-500 text-[10px] md:text-xs w-3 md:w-4">${i + 1}.</span><div><p class="font-bold text-xs md:text-sm truncate ${t.status === 'qualified' ? 'text-emerald-400' : ''}">${t.name}</p></div></div>
+                <div class="text-right shrink-0 ml-1 md:ml-2"><div class="font-mono font-bold text-xs md:text-sm"><span class="${t.wins>0?'text-emerald-400':'text-slate-400'}">${t.wins}W</span> - <span class="${t.losses>0?'text-red-400':'text-slate-400'}">${t.losses}L</span></div><div class="text-[9px] md:text-[10px] text-slate-400 font-medium">Diff: <span class="${t.mapDiff>0?'text-emerald-500':(t.mapDiff<0?'text-red-500':'')}">${t.mapDiff>0?'+':''}${t.mapDiff}</span></div></div>
             </div>`).join('');
     }
 
@@ -591,9 +592,9 @@
         if (phase === 'swiss') {
             const activeMatches = matches.filter(m => !m.winnerId);
             grid.innerHTML = activeMatches.length ? activeMatches.map(m => generateMatchCardHTML(m)).join('') : 
-                (teams.length ? `<div class="col-span-full p-12 text-center border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-slate-400">All Swiss matches complete.</div>` : `<div class="col-span-full p-12 text-center border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/30 text-slate-400">Awaiting Teams</div>`);
+                (teams.length ? `<div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-400 text-sm md:text-base">All Swiss matches complete.</div>` : `<div class="col-span-full p-8 md:p-12 text-center border-2 border-dashed border-slate-800 rounded-2xl md:rounded-3xl bg-slate-900/30 text-slate-400 text-sm md:text-base">Awaiting Teams</div>`);
         } else {
-            let html = `<div class="col-span-full space-y-6">`;
+            let html = `<div class="col-span-full space-y-4 md:space-y-6">`;
             html += renderPlayoffTier('Quarterfinals', playoffMatches.qf);
             if (playoffMatches.sf.length) html += renderPlayoffTier('Semifinals', playoffMatches.sf);
             if (playoffMatches.final) html += renderPlayoffTier('Finals', [playoffMatches.final, playoffMatches.third]);
@@ -603,7 +604,7 @@
 
     function renderPlayoffTier(title, matchArray) {
         if (!matchArray || !matchArray.length) return '';
-        return `<h3 class="text-lg font-black text-yellow-500 uppercase tracking-widest border-b border-slate-800 pb-2 mb-4">${title}</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">` + matchArray.map(m => generateMatchCardHTML(m, true)).join('') + `</div>`;
+        return `<h3 class="text-base md:text-lg font-black text-yellow-500 uppercase tracking-widest border-b border-slate-800 pb-1.5 md:pb-2 mb-3 md:mb-4">${title}</h3><div class="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4">` + matchArray.map(m => generateMatchCardHTML(m, true)).join('') + `</div>`;
     }
 
     function generateMatchCardHTML(m, isPlayoff = false) {
@@ -616,37 +617,37 @@
                 const isDec = p.action === 'decider';
                 const color = isDec ? 'text-yellow-400 border-yellow-500/50 bg-yellow-900/20' : 'text-emerald-400 border-emerald-500/50 bg-emerald-900/20';
                 const prefix = isDec ? (m.veto.format === 'bo1' ? 'MAP' : 'DEC') : `M${pickCount++}`;
-                return `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${color}"><span class="opacity-70">${prefix}</span> ${p.map.toUpperCase()}</span>`;
+                return `<span class="text-[8px] md:text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${color}"><span class="opacity-70">${prefix}</span> ${p.map.toUpperCase()}</span>`;
             }).join('') + `</div>`;
         } else if (m.veto && m.veto.history.length > 0) {
-            vetoUI = `<div class="mt-2 text-[9px] text-center text-slate-500 uppercase font-bold tracking-widest">Veto in progress...</div>`;
+            vetoUI = `<div class="mt-2 text-[8px] md:text-[9px] text-center text-slate-500 uppercase font-bold tracking-widest">Veto in progress...</div>`;
         }
 
         let controlUI = '';
         if (m.winnerId) {
-            controlUI = `<div class="flex items-center gap-3"><span class="text-2xl font-black ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600 font-bold">-</span><span class="text-2xl font-black ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-2 text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded shadow-inner">Match Finished</div>`;
+            controlUI = `<div class="flex items-center gap-2 md:gap-3"><span class="text-xl md:text-2xl font-black ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600 font-bold">-</span><span class="text-xl md:text-2xl font-black ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-1 md:mt-2 text-[9px] md:text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded shadow-inner">Match Finished</div>`;
         } else if (m.veto && m.veto.history.length === 7) {
             const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
             const inputs = playable.map((p, idx) => `
-                <div class="flex items-center justify-between gap-2 w-full text-[10px] mb-2">
-                    <span class="text-slate-400 w-14 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
-                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-14 bg-slate-800 border border-slate-600 rounded text-center py-1.5 text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
+                <div class="flex items-center justify-between gap-1 md:gap-2 w-full text-[9px] md:text-[10px] mb-1 md:mb-2">
+                    <span class="text-slate-400 w-10 md:w-14 truncate uppercase font-bold" title="${p.map}">${p.map}</span>
+                    <input id="s1_${m.id}_${idx}" type="number" min="0" value="${m['tempS1_'+idx] !== undefined ? m['tempS1_'+idx] : ''}" class="w-10 md:w-14 bg-slate-800 border border-slate-600 rounded text-center py-1 md:py-1.5 text-xs md:text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
                     <span class="text-slate-600 font-bold">:</span>
-                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-14 bg-slate-800 border border-slate-600 rounded text-center py-1.5 text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
+                    <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-10 md:w-14 bg-slate-800 border border-slate-600 rounded text-center py-1 md:py-1.5 text-xs md:text-sm font-black outline-none appearance-none focus:border-blue-500 transition-colors shadow-inner">
                 </div>
             `).join('');
-            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-2 bg-emerald-700 hover:bg-emerald-600 text-[11px] font-bold px-4 py-2 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Match</button>`;
+            controlUI = `<div class="flex flex-col w-full px-1">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1 md:mt-2 bg-emerald-700 hover:bg-emerald-600 text-[10px] md:text-[11px] font-bold px-2 md:px-4 py-1.5 md:py-2 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Match</button>`;
         } else {
-            controlUI = `<div class="text-[11px] text-slate-400 text-center mb-3 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[11px] font-bold text-white px-4 py-2 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
+            controlUI = `<div class="text-[10px] md:text-[11px] text-slate-400 text-center mb-2 md:mb-3 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[10px] md:text-[11px] font-bold text-white px-3 md:px-4 py-1.5 md:py-2 rounded transition-colors border border-blue-500 uppercase shadow-lg w-full">Start Veto</button>`;
         }
 
-        return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-5 rounded-xl shadow-xl relative overflow-visible group">
+        return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-3 md:p-5 rounded-xl shadow-xl relative overflow-visible group">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-xl bg-gradient-to-r ${accent} opacity-75"></div>
-            <div class="text-[11px] text-center text-slate-400 font-bold mb-4 uppercase tracking-widest">${m.label}</div>
-            <div class="flex items-center justify-between gap-6">
-                <div class="flex-1 text-right truncate font-bold text-lg ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
-                <div class="flex flex-col items-center shrink-0 w-44">${controlUI}</div>
-                <div class="flex-1 text-left truncate font-bold text-lg ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}">${m.t2.name}</div>
+            <div class="text-[9px] md:text-[11px] text-center text-slate-400 font-bold mb-3 md:mb-4 uppercase tracking-widest">${m.label}</div>
+            <div class="flex items-center justify-between gap-3 md:gap-6 flex-wrap md:flex-nowrap">
+                <div class="w-full md:flex-1 text-center md:text-right truncate font-bold text-base md:text-lg ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
+                <div class="flex flex-col items-center shrink-0 w-full md:w-44 order-last md:order-none mt-2 md:mt-0">${controlUI}</div>
+                <div class="w-full md:flex-1 text-center md:text-left truncate font-bold text-base md:text-lg ${m.winnerId===m.t2.id?'text-white':'text-slate-400'}">${m.t2.name}</div>
             </div>${generateHoverTooltip(m)}</div>`;
     }
 
@@ -654,7 +655,7 @@
 
     function renderVisualizer() {
         const vc = document.getElementById('visualizerContainer');
-        if (teams.length === 0) { vc.innerHTML = `<div class="m-auto text-slate-600 italic font-medium">Add 16 teams and start the tournament to view the bracket.</div>`; return; }
+        if (teams.length === 0) { vc.innerHTML = `<div class="m-auto text-slate-600 italic font-medium text-sm">Add 16 teams and start the tournament to view the bracket.</div>`; return; }
         
         if (viewPhase === 'swiss') {
             let vizRound = currentRound;
@@ -682,7 +683,7 @@
             });
             svgLines += `</svg>`;
 
-            let html = `<div class="grid grid-cols-6 gap-x-5 gap-y-3 min-w-[1050px] w-full px-2 relative mx-auto z-10" style="grid-template-rows: repeat(7, 1fr);">`;
+            let html = `<div class="grid grid-cols-6 gap-x-3 md:gap-x-5 gap-y-2 md:gap-y-3 min-w-[800px] md:min-w-[1050px] w-full px-2 relative mx-auto z-10" style="grid-template-rows: repeat(7, 1fr);">`;
             html += svgLines;
 
             const getMatches = (poolStr) => matches.filter(m => m.type === 'swiss' && m.pool === poolStr);
@@ -728,10 +729,10 @@
                         }
 
                         return `
-                        <div class="flex items-center justify-between py-[6px] px-2 bg-[#111827]/90 rounded mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10 group cursor-default">
-                            <span class="w-14 truncate text-right text-[12px] ${w1Class}" title="${m.t1.name}">${m.t1.name.substring(0,3).toUpperCase()}</span>
-                            <span class="text-[12px] mx-2 tracking-widest ${scoreClass}">${displayScore}</span>
-                            <span class="w-14 truncate text-left text-[12px] ${w2Class}" title="${m.t2.name}">${m.t2.name.substring(0,3).toUpperCase()}</span>
+                        <div class="flex items-center justify-between py-1 md:py-[6px] px-1 md:px-2 bg-[#111827]/90 rounded mb-1 md:mb-1.5 border border-[#334155] hover:bg-[#1f2937] transition-colors relative z-10 group cursor-default">
+                            <span class="w-10 md:w-14 truncate text-right text-[10px] md:text-[12px] ${w1Class}" title="${m.t1.name}">${m.t1.name.substring(0,3).toUpperCase()}</span>
+                            <span class="text-[10px] md:text-[12px] mx-1 md:mx-2 tracking-widest ${scoreClass}">${displayScore}</span>
+                            <span class="w-10 md:w-14 truncate text-left text-[10px] md:text-[12px] ${w2Class}" title="${m.t2.name}">${m.t2.name.substring(0,3).toUpperCase()}</span>
                             ${generateHoverTooltip(m)}
                         </div>`;
                     }).join('');
@@ -740,17 +741,17 @@
                     const formatStr = repMatch.veto ? repMatch.veto.format.toUpperCase() : (b.pool.includes('2') ? 'BO3' : 'BO1');
 
                     html += `
-                    <div class="border-[2px] rounded-lg p-2 bg-[#0f172a] flex flex-col ${b.color} relative z-10 overflow-visible" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;">
-                        <div class="flex justify-between items-center px-1 pb-1 mb-2">
-                            <span class="text-[11px] font-black uppercase tracking-wider">${b.title}</span><span class="text-[9px] font-bold opacity-60 tracking-wider">${formatStr}</span>
+                    <div class="border-[2px] rounded-lg p-1.5 md:p-2 bg-[#0f172a] flex flex-col ${b.color} relative z-10 overflow-visible" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;">
+                        <div class="flex justify-between items-center px-1 pb-1 mb-1 md:mb-2">
+                            <span class="text-[9px] md:text-[11px] font-black uppercase tracking-wider">${b.title}</span><span class="text-[8px] md:text-[9px] font-bold opacity-60 tracking-wider">${formatStr}</span>
                         </div>${contentHtml}
                     </div>`;
                 } else {
                     const poolTeams = getTeams(b.w, b.l);
                     if (poolTeams.length === 0) return;
 
-                    contentHtml = poolTeams.map(t => `<div class="flex items-center justify-center py-2 bg-[#111827]/90 rounded mb-1.5 border border-[#334155] relative z-10"><span class="font-bold text-[13px] text-white tracking-wide truncate px-2" title="${t.name}">${t.name}</span></div>`).join('');
-                    html += `<div class="border-[2px] rounded-lg p-2 flex flex-col ${b.color} relative z-10" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;"><div class="text-[10px] font-bold uppercase tracking-widest text-center pb-1 mb-2">${b.title}</div>${contentHtml}</div>`;
+                    contentHtml = poolTeams.map(t => `<div class="flex items-center justify-center py-1 md:py-2 bg-[#111827]/90 rounded mb-1 md:mb-1.5 border border-[#334155] relative z-10"><span class="font-bold text-[11px] md:text-[13px] text-white tracking-wide truncate px-2" title="${t.name}">${t.name}</span></div>`).join('');
+                    html += `<div class="border-[2px] rounded-lg p-1.5 md:p-2 flex flex-col ${b.color} relative z-10" style="grid-column: ${b.c}; grid-row: ${b.r}; align-self: center;"><div class="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-center pb-1 mb-1 md:mb-2">${b.title}</div>${contentHtml}</div>`;
                 }
             });
 
@@ -758,10 +759,10 @@
             vc.innerHTML = html;
         } else {
             const drawBracketMatch = (m) => {
-                if(!m) return `<div class="bracket-match border-dashed border-slate-700 bg-transparent text-slate-600 text-center italic py-4">TBD</div>`;
+                if(!m) return `<div class="bracket-match border-dashed border-slate-700 bg-transparent text-slate-600 text-center italic py-3 md:py-4">TBD</div>`;
                 const t1Class = m.winnerId === m.t1.id ? 'winner' : (m.winnerId ? 'text-slate-500' : 'text-slate-300');
                 const t2Class = m.winnerId === m.t2.id ? 'winner' : (m.winnerId ? 'text-slate-500' : 'text-slate-300');
-                return `<div class="bracket-match group hover:border-slate-500 transition-colors"><div class="text-[9px] text-slate-500 uppercase tracking-wider mb-1 px-1">${m.label}</div><div class="bracket-team ${t1Class}"><span class="truncate pr-2">${m.t1.name}</span><span class="font-bold">${m.scoreT1!==0||m.winnerId?m.scoreT1:'-'}</span></div><div class="border-t border-slate-700 my-0.5"></div><div class="bracket-team ${t2Class}"><span class="truncate pr-2">${m.t2.name}</span><span class="font-bold">${m.scoreT2!==0||m.winnerId?m.scoreT2:'-'}</span></div>${generateHoverTooltip(m)}</div>`;
+                return `<div class="bracket-match group hover:border-slate-500 transition-colors"><div class="text-[8px] md:text-[9px] text-slate-500 uppercase tracking-wider mb-1 px-1">${m.label}</div><div class="bracket-team ${t1Class}"><span class="truncate pr-2 text-xs md:text-sm">${m.t1.name}</span><span class="font-bold text-xs md:text-sm">${m.scoreT1!==0||m.winnerId?m.scoreT1:'-'}</span></div><div class="border-t border-slate-700 my-0.5"></div><div class="bracket-team ${t2Class}"><span class="truncate pr-2 text-xs md:text-sm">${m.t2.name}</span><span class="font-bold text-xs md:text-sm">${m.scoreT2!==0||m.winnerId?m.scoreT2:'-'}</span></div>${generateHoverTooltip(m)}</div>`;
             };
 
             let podiumHtml = '';
@@ -770,31 +771,31 @@
                 const second = teams.find(t => t.id === (playoffMatches.final.t1.id === playoffMatches.final.winnerId ? playoffMatches.final.t2.id : playoffMatches.final.t1.id));
                 const third = teams.find(t => t.id === playoffMatches.third.winnerId);
                 podiumHtml = `
-                <div class="flex flex-col justify-end items-center h-full pl-16 ml-4 border-l border-slate-800/50 min-w-[300px] pb-4">
-                    <h3 class="text-xl font-black text-white mb-6 tracking-widest uppercase shadow-black drop-shadow-lg">Champions</h3>
-                    <div class="flex items-end gap-2 h-48 mt-auto">
-                        <div class="flex flex-col items-center group podium-step w-20" style="animation-delay: 0.2s">
-                            <span class="text-slate-300 font-bold text-xs mb-2 truncate max-w-[80px] text-center w-full" title="${second.name}">${second.name}</span>
-                            <div class="w-full bg-gradient-to-t from-slate-500 to-slate-300 rounded-t-lg shadow-[0_0_15px_rgba(148,163,184,0.4)] flex items-start justify-center pt-2 h-24 relative border-t-2 border-slate-200"><span class="text-slate-800 font-black text-2xl">2</span><div class="absolute -top-5 text-2xl">🥈</div></div>
+                <div class="flex flex-col justify-end items-center h-full pl-8 md:pl-16 ml-2 md:ml-4 border-l border-slate-800/50 min-w-[250px] md:min-w-[300px] pb-4">
+                    <h3 class="text-lg md:text-xl font-black text-white mb-4 md:mb-6 tracking-widest uppercase shadow-black drop-shadow-lg">Champions</h3>
+                    <div class="flex items-end gap-1 md:gap-2 h-36 md:h-48 mt-auto">
+                        <div class="flex flex-col items-center group podium-step w-16 md:w-20" style="animation-delay: 0.2s">
+                            <span class="text-slate-300 font-bold text-[10px] md:text-xs mb-1 md:mb-2 truncate max-w-[60px] md:max-w-[80px] text-center w-full" title="${second.name}">${second.name}</span>
+                            <div class="w-full bg-gradient-to-t from-slate-500 to-slate-300 rounded-t-lg shadow-[0_0_15px_rgba(148,163,184,0.4)] flex items-start justify-center pt-1 md:pt-2 h-20 md:h-24 relative border-t-2 border-slate-200"><span class="text-slate-800 font-black text-xl md:text-2xl">2</span><div class="absolute -top-4 md:-top-5 text-xl md:text-2xl">🥈</div></div>
                         </div>
-                        <div class="flex flex-col items-center group z-10 podium-step w-24" style="animation-delay: 0.6s">
-                            <span class="text-yellow-400 font-bold text-base mb-2 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)] truncate max-w-[100px] text-center w-full" title="${first.name}">${first.name}</span>
-                            <div class="w-full bg-gradient-to-t from-yellow-700 to-yellow-400 rounded-t-lg shadow-[0_0_30px_rgba(234,179,8,0.6)] flex items-start justify-center pt-2 h-36 relative border-t-2 border-yellow-200"><span class="text-yellow-900 font-black text-3xl">1</span><div class="absolute -top-6 text-4xl">🏆</div></div>
+                        <div class="flex flex-col items-center group z-10 podium-step w-20 md:w-24" style="animation-delay: 0.6s">
+                            <span class="text-yellow-400 font-bold text-sm md:text-base mb-1 md:mb-2 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)] truncate max-w-[80px] md:max-w-[100px] text-center w-full" title="${first.name}">${first.name}</span>
+                            <div class="w-full bg-gradient-to-t from-yellow-700 to-yellow-400 rounded-t-lg shadow-[0_0_30px_rgba(234,179,8,0.6)] flex items-start justify-center pt-1 md:pt-2 h-28 md:h-36 relative border-t-2 border-yellow-200"><span class="text-yellow-900 font-black text-2xl md:text-3xl">1</span><div class="absolute -top-5 md:-top-6 text-3xl md:text-4xl">🏆</div></div>
                         </div>
-                        <div class="flex flex-col items-center group podium-step w-20" style="animation-delay: 0.4s">
-                            <span class="text-amber-600 font-bold text-xs mb-2 truncate max-w-[80px] text-center w-full" title="${third.name}">${third.name}</span>
-                            <div class="w-full bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-lg shadow-[0_0_15px_rgba(217,119,6,0.4)] flex items-start justify-center pt-2 h-16 relative border-t-2 border-amber-500"><span class="text-amber-950 font-black text-2xl">3</span><div class="absolute -top-4 text-2xl">🥉</div></div>
+                        <div class="flex flex-col items-center group podium-step w-16 md:w-20" style="animation-delay: 0.4s">
+                            <span class="text-amber-600 font-bold text-[10px] md:text-xs mb-1 md:mb-2 truncate max-w-[60px] md:max-w-[80px] text-center w-full" title="${third.name}">${third.name}</span>
+                            <div class="w-full bg-gradient-to-t from-amber-800 to-amber-600 rounded-t-lg shadow-[0_0_15px_rgba(217,119,6,0.4)] flex items-start justify-center pt-1 md:pt-2 h-12 md:h-16 relative border-t-2 border-amber-500"><span class="text-amber-950 font-black text-xl md:text-2xl">3</span><div class="absolute -top-3 md:-top-4 text-xl md:text-2xl">🥉</div></div>
                         </div>
                     </div>
                 </div>`;
             }
 
             vc.innerHTML = `
-                <div class="bracket-col pl-8">${playoffMatches.qf.map(m => drawBracketMatch(m)).join('')}</div>
-                <div class="bracket-col justify-evenly pl-12 border-l border-slate-800/50 relative"><div class="absolute top-1/2 -left-3 w-6 h-px bg-slate-800/50"></div>${playoffMatches.sf.length ? playoffMatches.sf.map(m => drawBracketMatch(m)).join('') : [null, null].map(m=>drawBracketMatch(m)).join('')}</div>
-                <div class="bracket-col justify-center gap-20 pl-12 border-l border-slate-800/50">
-                    <div class="relative"><div class="absolute -top-6 left-0 text-[11px] text-yellow-500 font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.5)]">Grand Final</div>${drawBracketMatch(playoffMatches.final)}</div>
-                    <div class="relative mt-8"><div class="absolute -top-6 left-0 text-[11px] text-slate-500 font-bold uppercase tracking-widest">3rd Place Match</div>${drawBracketMatch(playoffMatches.third)}</div>
+                <div class="bracket-col pl-4 md:pl-8">${playoffMatches.qf.map(m => drawBracketMatch(m)).join('')}</div>
+                <div class="bracket-col justify-evenly pl-8 md:pl-12 border-l border-slate-800/50 relative"><div class="absolute top-1/2 -left-2 md:-left-3 w-4 md:w-6 h-px bg-slate-800/50"></div>${playoffMatches.sf.length ? playoffMatches.sf.map(m => drawBracketMatch(m)).join('') : [null, null].map(m=>drawBracketMatch(m)).join('')}</div>
+                <div class="bracket-col justify-center gap-12 md:gap-20 pl-8 md:pl-12 border-l border-slate-800/50">
+                    <div class="relative"><div class="absolute -top-5 md:-top-6 left-0 text-[9px] md:text-[11px] text-yellow-500 font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(234,179,8,0.5)]">Grand Final</div>${drawBracketMatch(playoffMatches.final)}</div>
+                    <div class="relative mt-6 md:mt-8"><div class="absolute -top-5 md:-top-6 left-0 text-[9px] md:text-[11px] text-slate-500 font-bold uppercase tracking-widest">3rd Place Match</div>${drawBracketMatch(playoffMatches.third)}</div>
                 </div>
                 ${podiumHtml}
             `;
