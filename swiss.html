@@ -23,11 +23,11 @@
         @keyframes flowLoss { to { stroke-dashoffset: -12; } }
         @keyframes riseUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .podium-step { animation: riseUp 0.8s ease-out forwards; }
-        
         .map-tooltip {
             position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
-            background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 100; min-width: 140px;
+            background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 100;
+            width: max-content; min-width: 180px; 
             opacity: 0; visibility: hidden; transition: all 0.2s; pointer-events: none;
         }
         .group:hover .map-tooltip { opacity: 1; visibility: visible; bottom: 120%; }
@@ -63,6 +63,10 @@
                 DAKSHH 2026 
                 <span id="vizPhaseTag" class="text-emerald-400 bg-emerald-900/30 border border-emerald-500/30 px-3 py-1 rounded-full text-xs shadow-[0_0_10px_rgba(16,185,129,0.2)]">SWISS STAGE</span>
             </h2>
+            <div id="viewToggle" class="hidden flex bg-slate-800 p-1 rounded-lg border border-slate-700 shadow-md">
+                <button type="button" id="btnViewSwiss" onclick="setViewPhase('swiss')" class="px-4 py-1 rounded text-xs font-bold transition-all">SWISS</button>
+                <button type="button" id="btnViewPlayoffs" onclick="setViewPhase('playoffs')" class="px-4 py-1 rounded text-xs font-bold transition-all">PLAYOFFS</button>
+            </div>
         </div>
         <div id="visualizerContainer" class="viz-scroll overflow-x-auto overflow-y-auto pb-8 pt-2 flex gap-8 items-stretch min-h-[500px] relative z-10 w-full" style="overflow: visible;">
             <div class="m-auto text-slate-600 italic font-medium">Add 16 teams and start the tournament to view the bracket.</div>
@@ -125,11 +129,9 @@
                 </div>
             </div>
             
-            <div id="vetoStatus" class="text-center text-xl bg-slate-800/80 py-3 rounded-lg border border-slate-700 shadow-inner font-black uppercase tracking-widest">
-            </div>
+            <div id="vetoStatus" class="text-center text-xl bg-slate-800/80 py-3 rounded-lg border border-slate-700 shadow-inner font-black uppercase tracking-widest"></div>
 
-            <div id="vetoMapsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            </div>
+            <div id="vetoMapsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
 
         <div class="bg-slate-800 p-4 border-t border-slate-700 flex justify-between items-center">
@@ -138,7 +140,7 @@
                 Reset Veto
             </button>
             <button type="button" onclick="closeVetoModal()" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-2.5 rounded-lg text-white font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                Confirm Maps
+                Close & Return
             </button>
         </div>
     </div>
@@ -146,6 +148,7 @@
 
 <script>
     let phase = 'swiss'; 
+    let viewPhase = 'swiss';
     let teams = [];
     let matches = [];
     let currentRound = 0;
@@ -175,7 +178,7 @@
     function saveTournament() {
         if (teams.length === 0) return alert("Nothing to save");
         preserveInputs();
-        const state = { phase, teams, matches, currentRound, playoffMatches };
+        const state = { phase, viewPhase, teams, matches, currentRound, playoffMatches };
         const dataStr = JSON.stringify(state, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -196,6 +199,7 @@
             try {
                 const state = JSON.parse(e.target.result);
                 phase = state.phase || 'swiss';
+                viewPhase = state.viewPhase || phase;
                 teams = state.teams || [];
                 matches = state.matches || [];
                 currentRound = state.currentRound || 0;
@@ -267,6 +271,11 @@
                 });
             }
         });
+    }
+
+    function setViewPhase(vp) {
+        viewPhase = vp;
+        render();
     }
 
     function openVetoModal(matchId) {
@@ -400,6 +409,7 @@
 
     function startPlayoffs() {
         phase = 'playoffs';
+        viewPhase = 'playoffs';
         const qTeams = getSortedTeams().filter(t => t.status === 'qualified');
         playoffMatches.qf = [createPlayoffMatch(qTeams[0], qTeams[7], 'Quarterfinal 1'), createPlayoffMatch(qTeams[3], qTeams[4], 'Quarterfinal 2'), createPlayoffMatch(qTeams[1], qTeams[6], 'Quarterfinal 3'), createPlayoffMatch(qTeams[2], qTeams[5], 'Quarterfinal 4')];
         document.getElementById('entrySection').style.display = 'none';
@@ -425,19 +435,21 @@
         render();
     }
 
-    function processMatchResult(matchId, t1W, t2W, skipRender = false) {
+    function processMatchResult(matchId, displayScoreT1, displayScoreT2, mapWinsT1, mapWinsT2, skipRender = false) {
         let match = getMatchById(matchId);
         if (!match || match.winnerId) return;
-        const wId = t1W > t2W ? match.t1.id : match.t2.id;
-        const lId = t1W > t2W ? match.t2.id : match.t1.id;
-        match.winnerId = wId; match.scoreT1 = t1W; match.scoreT2 = t2W;
+        const wId = displayScoreT1 > displayScoreT2 ? match.t1.id : match.t2.id;
+        const lId = displayScoreT1 > displayScoreT2 ? match.t2.id : match.t1.id;
+        match.winnerId = wId; match.scoreT1 = displayScoreT1; match.scoreT2 = displayScoreT2;
         if (phase === 'swiss') {
             const w = teams.find(t => t.id === wId);
             const l = teams.find(t => t.id === lId);
             w.wins++; l.losses++;
             w.history.push(lId); l.history.push(wId);
-            if (wId === match.t1.id) { w.mapsWon+=t1W; w.mapsLost+=t2W; l.mapsWon+=t2W; l.mapsLost+=t1W; } 
-            else { w.mapsWon+=t2W; w.mapsLost+=t1W; l.mapsWon+=t1W; l.mapsLost+=t2W; }
+            const wMapWins = wId === match.t1.id ? mapWinsT1 : mapWinsT2;
+            const lMapWins = wId === match.t1.id ? mapWinsT2 : mapWinsT1;
+            w.mapsWon += wMapWins; w.mapsLost += lMapWins;
+            l.mapsWon += lMapWins; l.mapsLost += wMapWins;
             if (w.wins === TEAMS_TO_QUALIFY) w.status = 'qualified';
             if (l.losses === TEAMS_TO_ELIMINATE) l.status = 'eliminated';
         }
@@ -451,7 +463,6 @@
         const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
         let t1Wins = 0, t2Wins = 0;
         let mapScores = [];
-        
         for (let i = 0; i < playable.length; i++) {
             const s1El = document.getElementById(`s1_${mId}_${i}`);
             const s2El = document.getElementById(`s2_${mId}_${i}`);
@@ -462,24 +473,22 @@
             if (s1 > s2) t1Wins++; else t2Wins++;
             if (m.veto.format === 'bo3' && (t1Wins === 2 || t2Wins === 2)) break;
         }
-
         if (m.veto.format === 'bo1' && t1Wins + t2Wins < 1) return alert("Enter score for the map.");
         if (m.veto.format === 'bo3' && t1Wins < 2 && t2Wins < 2) return alert("Enter enough scores to determine a BO3 winner.");
-
         m.mapScores = mapScores;
-        processMatchResult(mId, t1Wins, t2Wins);
+        const displayS1 = m.veto.format === 'bo1' ? mapScores[0].s1 : t1Wins;
+        const displayS2 = m.veto.format === 'bo1' ? mapScores[0].s2 : t2Wins;
+        processMatchResult(mId, displayS1, displayS2, t1Wins, t2Wins);
     }
 
     function autoResolveMatches() {
         preserveInputs();
         let active = phase === 'swiss' ? matches.filter(m => !m.winnerId) : [...playoffMatches.qf, ...playoffMatches.sf, playoffMatches.final, playoffMatches.third].filter(m => m && !m.winnerId);
         if (active.length === 0) return alert("Advance bracket or start the round first.");
-        
         active.forEach(m => {
             let isBo3 = Math.random() > 0.5;
             if (phase === 'playoffs') isBo3 = true;
             else if (m.pool && (m.pool.includes('2'))) isBo3 = true;
-            
             if (!m.veto || m.veto.history.length < 7) {
                 m.veto = { format: isBo3 ? 'bo3' : 'bo1', history: [] };
                 let availableMaps = [...VALORANT_MAPS].sort(() => Math.random() - 0.5);
@@ -488,7 +497,6 @@
                     m.veto.history.push({ map: selectedMap, action: step.action, by: step.by === 'auto' ? 'auto' : (step.by === 't1' ? m.t1.id : m.t2.id) });
                 });
             }
-
             const playable = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
             let t1W = 0, t2W = 0;
             let mScores = [];
@@ -501,15 +509,35 @@
                 if (s1 > s2) t1W++; else t2W++;
             }
             m.mapScores = mScores;
-            processMatchResult(m.id, t1W, t2W, true);
+            const displayS1 = m.veto.format === 'bo1' ? mScores[0].s1 : t1W;
+            const displayS2 = m.veto.format === 'bo1' ? mScores[0].s2 : t2W;
+            processMatchResult(m.id, displayS1, displayS2, t1W, t2W, true);
         });
         render();
+    }
+
+    function generateHoverTooltip(m) {
+        if (!m || !m.winnerId || !m.mapScores || m.mapScores.length === 0) return '';
+        const mList = m.mapScores.map((ms, i) => `
+            <div class="flex justify-between items-center gap-6 px-1 py-0.5 whitespace-nowrap">
+                <span class="text-slate-300 font-bold uppercase text-[10px]">Map ${i+1}: ${ms.map}</span>
+                <span class="font-mono text-white font-black text-[11px]">${ms.s1} - ${ms.s2}</span>
+            </div>`).join('');
+        return `<div class="map-tooltip"><div class="text-[9px] font-black text-emerald-400 border-b border-slate-700 pb-1 mb-1.5 text-center tracking-widest">MAP RESULTS</div><div class="flex flex-col gap-0.5">${mList}</div></div>`;
     }
 
     function render() {
         preserveInputs();
         const btn = document.getElementById('mainActionBtn');
-        document.getElementById('vizPhaseTag').innerText = phase === 'swiss' ? "SWISS STAGE" : "CHAMPIONS STAGE";
+        document.getElementById('vizPhaseTag').innerText = viewPhase === 'swiss' ? "SWISS STAGE" : "CHAMPIONS STAGE";
+        if (phase === 'playoffs') {
+            document.getElementById('viewToggle').classList.remove('hidden');
+            document.getElementById('btnViewSwiss').className = viewPhase === 'swiss' ? 'px-4 py-1 bg-blue-600 rounded text-white font-bold text-xs shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-4 py-1 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs transition-all';
+            document.getElementById('btnViewPlayoffs').className = viewPhase === 'playoffs' ? 'px-4 py-1 bg-blue-600 rounded text-white font-bold text-xs shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'px-4 py-1 hover:bg-slate-700 rounded text-slate-400 font-bold text-xs transition-all';
+        } else {
+            document.getElementById('viewToggle').classList.add('hidden');
+        }
+
         if (phase === 'swiss') {
             document.getElementById('phaseTag').innerText = "Swiss Stage";
             document.getElementById('roundDisplay').innerText = currentRound === 0 ? "Setup Phase" : `Round ${currentRound}`;
@@ -534,16 +562,6 @@
             </div>`).join('');
     }
 
-    function generateHoverTooltip(m) {
-        if (!m || !m.winnerId || !m.mapScores || m.mapScores.length === 0) return '';
-        const mList = m.mapScores.map((ms, i) => `
-            <div class="flex justify-between gap-6 px-1">
-                <span class="text-slate-300 font-bold uppercase">Map ${i+1}: ${ms.map}</span>
-                <span class="font-mono text-white">${ms.s1} - ${ms.s2}</span>
-            </div>`).join('');
-        return `<div class="map-tooltip"><div class="text-[10px] font-black text-emerald-400 border-b border-slate-700 pb-1 mb-1 text-center tracking-widest">MAP RESULTS</div><div class="flex flex-col gap-1">${mList}</div></div>`;
-    }
-
     function renderMatches() {
         const grid = document.getElementById('matchGrid');
         if (phase === 'swiss') {
@@ -566,7 +584,20 @@
 
     function generateMatchCardHTML(m, isPlayoff = false) {
         const accent = isPlayoff ? 'from-yellow-600 to-orange-500' : 'from-blue-500 to-emerald-500';
-        
+        let vetoUI = '';
+        if (m.veto && m.veto.history.length === 7) {
+            let pickCount = 1;
+            const picks = m.veto.history.filter(h => h.action === 'pick' || h.action === 'decider');
+            vetoUI = `<div class="mt-2 flex gap-1 justify-center flex-wrap">` + picks.map(p => {
+                const isDec = p.action === 'decider';
+                const color = isDec ? 'text-yellow-400 border-yellow-500/50 bg-yellow-900/20' : 'text-emerald-400 border-emerald-500/50 bg-emerald-900/20';
+                const prefix = isDec ? (m.veto.format === 'bo1' ? 'MAP' : 'DEC') : `M${pickCount++}`;
+                return `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 ${color}"><span class="opacity-70">${prefix}</span> ${p.map.toUpperCase()}</span>`;
+            }).join('') + `</div>`;
+        } else if (m.veto && m.veto.history.length > 0) {
+            vetoUI = `<div class="mt-2 text-[9px] text-center text-slate-500 uppercase font-bold tracking-widest">Veto in progress...</div>`;
+        }
+
         let controlUI = '';
         if (m.winnerId) {
             controlUI = `<div class="flex items-center gap-3"><span class="text-xl font-bold ${m.winnerId===m.t1.id?'text-emerald-400':'text-slate-500'}">${m.scoreT1}</span><span class="text-slate-600">-</span><span class="text-xl font-bold ${m.winnerId===m.t2.id?'text-emerald-400':'text-slate-500'}">${m.scoreT2}</span></div><div class="mt-2 text-[10px] text-slate-500 uppercase font-bold bg-slate-800 px-2 py-1 rounded">Finished</div>`;
@@ -580,15 +611,13 @@
                     <input id="s2_${m.id}_${idx}" type="number" min="0" value="${m['tempS2_'+idx] !== undefined ? m['tempS2_'+idx] : ''}" class="w-7 bg-slate-800 border border-slate-600 rounded text-center py-0.5 font-bold outline-none appearance-none">
                 </div>
             `).join('');
-            controlUI = `<div class="flex flex-col w-full px-2">${inputs}</div>
-                         <button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1 bg-emerald-700 hover:bg-emerald-600 text-[9px] font-bold px-2 py-1 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Maps</button>`;
+            controlUI = `<div class="flex flex-col w-full px-2">${inputs}</div><button type="button" onclick="submitScoreUI('${m.id}')" class="mt-1 bg-emerald-700 hover:bg-emerald-600 text-[9px] font-bold px-2 py-1 rounded transition-colors w-full border border-emerald-600 uppercase shadow-lg">Submit Maps</button>`;
         } else {
-            controlUI = `<div class="text-[10px] text-slate-400 text-center mb-2 italic">Veto Required</div>
-                         <button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[10px] font-bold text-white px-4 py-1.5 rounded transition-colors border border-blue-500 uppercase shadow-lg">Start Veto</button>`;
+            controlUI = `<div class="text-[10px] text-slate-400 text-center mb-2 italic">Veto Required</div><button type="button" onclick="openVetoModal('${m.id}')" class="bg-blue-600 hover:bg-blue-500 text-[10px] font-bold text-white px-4 py-1.5 rounded transition-colors border border-blue-500 uppercase shadow-lg">Start Veto</button>`;
         }
 
-        return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700'} p-4 rounded-xl shadow-xl relative overflow-visible group">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${accent} opacity-75"></div>
+        return `<div class="bg-slate-900 border ${m.winnerId?'border-slate-800 opacity-70':'border-slate-700 hover:border-slate-500'} p-4 rounded-xl shadow-xl relative overflow-visible group">
+            <div class="absolute top-0 left-0 w-full h-1 rounded-t-xl bg-gradient-to-r ${accent} opacity-75"></div>
             <div class="text-[10px] text-center text-slate-400 font-bold mb-4 uppercase tracking-widest">${m.label}</div>
             <div class="flex items-center justify-between gap-4">
                 <div class="flex-1 text-right truncate font-bold ${m.winnerId===m.t1.id?'text-white':'text-slate-400'}">${m.t1.name}</div>
@@ -603,7 +632,7 @@
         const vc = document.getElementById('visualizerContainer');
         if (teams.length === 0) { vc.innerHTML = `<div class="m-auto text-slate-600 italic font-medium">Add 16 teams and start the tournament to view the bracket.</div>`; return; }
         
-        if (phase === 'swiss') {
+        if (viewPhase === 'swiss') {
             let vizRound = currentRound;
             const activeSwissMatches = matches.filter(m => m.type === 'swiss' && !m.winnerId);
             if (currentRound > 0 && activeSwissMatches.length === 0) vizRound = currentRound + 1; 
